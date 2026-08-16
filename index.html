@@ -99,7 +99,7 @@ a{color:inherit;}
 .h-sub{margin-top:24px;font-size:clamp(19px,2.3vw,26px);line-height:1.35;color:var(--dink);
   max-width:19em;font-weight:400;letter-spacing:-.018em;}
 .h-venue{margin-bottom:26px;}
-.authors{margin-top:38px;font-size:14px;line-height:1.9;color:var(--dink-2);max-width:60em;}
+.authors{margin-top:38px;font-size:18px;line-height:1.75;color:var(--dink-2);max-width:60em;}
 .authors b{color:var(--dink);font-weight:600;white-space:nowrap;}
 .authors sup{font-size:9.5px;color:var(--dink-3);font-weight:400;}
 .affil{margin-top:10px;font-size:12px;color:var(--dink-3);line-height:1.75;}
@@ -273,9 +273,9 @@ figcaption b{color:var(--ink);font-weight:650;}
 .car-slides{position:relative;}
 .c-slide{display:none;}
 .c-slide[data-active="true"]{display:block;}
-.cmp2{display:grid;grid-template-columns:repeat(2,minmax(0,280px));gap:18px;margin-bottom:22px;}
+.cmp2{display:grid;grid-template-columns:minmax(0,280px) auto minmax(0,280px);gap:18px;align-items:center;margin-bottom:22px;}
 .cmp3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
-@media (max-width:820px){.cmp3{grid-template-columns:1fr;}.cmp2{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:820px){.cmp3{grid-template-columns:1fr;}.cmp2{grid-template-columns:1fr;}.cmp2 .plus{justify-self:center;}}
 .car-prompt{margin-top:22px;font-size:15px;line-height:1.6;color:var(--dink-2);
   padding-left:18px;border-left:2px solid var(--red);max-width:64em;}
 .car-nav{display:flex;align-items:center;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--dline);}
@@ -306,6 +306,7 @@ figcaption b{color:var(--ink);font-weight:650;}
 /* ---- editing propagation flow ---- */
 .flow3{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:14px;align-items:center;}
 .flow3 .arrow{color:var(--dink-3);flex:none;}
+.plus{color:var(--dink-3);font-size:22px;font-weight:300;flex:none;line-height:1;}
 .flow3 .arrow svg{width:22px;height:22px;}
 @media (max-width:820px){.flow3{grid-template-columns:1fr;}.flow3 .arrow{transform:rotate(90deg);justify-self:center;}}
 
@@ -749,6 +750,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
       <div class="c-slide" data-active="true" data-idx="0">
         <div class="cmp2">
           <figure class="shot"><img src="assets/img/ref-bg09-reference.jpg" alt="Reference image, sample 1"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <span class="plus">+</span>
           <figure class="shot"><video muted playsinline aria-label="Source video, sample 1" data-src="assets/video/ref-bg09-src.mp4" poster="assets/img/ref-bg09-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
         </div>
         <div class="cmp3">
@@ -761,6 +763,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
       <div class="c-slide" data-idx="1">
         <div class="cmp2">
           <figure class="shot"><img src="assets/img/ref-bg21-reference.jpg" alt="Reference image, sample 2"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <span class="plus">+</span>
           <figure class="shot"><video muted playsinline aria-label="Source video, sample 2" data-src="assets/video/ref-bg21-src.mp4" poster="assets/img/ref-bg21-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
         </div>
         <div class="cmp3">
@@ -773,6 +776,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
       <div class="c-slide" data-idx="2">
         <div class="cmp2">
           <figure class="shot"><img src="assets/img/ref-bg24-reference.jpg" alt="Reference image, sample 3"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <span class="plus">+</span>
           <figure class="shot"><video muted playsinline aria-label="Source video, sample 3" data-src="assets/video/ref-bg24-src.mp4" poster="assets/img/ref-bg24-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
         </div>
         <div class="cmp3">
@@ -785,6 +789,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
       <div class="c-slide" data-idx="3">
         <div class="cmp2">
           <figure class="shot"><img src="assets/img/ref-subj03-reference.jpg" alt="Reference image, sample 4"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <span class="plus">+</span>
           <figure class="shot"><video muted playsinline aria-label="Source video, sample 4" data-src="assets/video/ref-subj03-src.mp4" poster="assets/img/ref-subj03-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
         </div>
         <div class="cmp3">
@@ -797,6 +802,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
       <div class="c-slide" data-idx="4">
         <div class="cmp2">
           <figure class="shot"><img src="assets/img/ref-subj24-reference.jpg" alt="Reference image, sample 5"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <span class="plus">+</span>
           <figure class="shot"><video muted playsinline aria-label="Source video, sample 5" data-src="assets/video/ref-subj24-src.mp4" poster="assets/img/ref-subj24-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
         </div>
         <div class="cmp3">
@@ -809,6 +815,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
       <div class="c-slide" data-idx="5">
         <div class="cmp2">
           <figure class="shot"><img src="assets/img/ref-subj35-reference.jpg" alt="Reference image, sample 6"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <span class="plus">+</span>
           <figure class="shot"><video muted playsinline aria-label="Source video, sample 6" data-src="assets/video/ref-subj35-src.mp4" poster="assets/img/ref-subj35-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
         </div>
         <div class="cmp3">
@@ -821,6 +828,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
       <div class="c-slide" data-idx="6">
         <div class="cmp2">
           <figure class="shot"><img src="assets/img/ref-subj49-reference.jpg" alt="Reference image, sample 7"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <span class="plus">+</span>
           <figure class="shot"><video muted playsinline aria-label="Source video, sample 7" data-src="assets/video/ref-subj49-src.mp4" poster="assets/img/ref-subj49-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
         </div>
         <div class="cmp3">
@@ -833,6 +841,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
       <div class="c-slide" data-idx="7">
         <div class="cmp2">
           <figure class="shot"><img src="assets/img/ref-subj80-reference.jpg" alt="Reference image, sample 8"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <span class="plus">+</span>
           <figure class="shot"><video muted playsinline aria-label="Source video, sample 8" data-src="assets/video/ref-subj80-src.mp4" poster="assets/img/ref-subj80-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
         </div>
         <div class="cmp3">
@@ -899,19 +908,27 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
         </div>
       </div>
       <div class="c-slide" data-idx="5">
-        <div class="car-label"><span class="scene">Coral reef</span><span class="src-tag">Kling v2.1 Master input</span></div>
-        <div class="cmp3">
-          <figure class="shot"><video muted playsinline aria-label="Coral reef, original input" data-src="assets/video/cam3-coral-reef-input.mp4" poster="assets/img/cam3-coral-reef-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Coral reef, S-curve loop result" data-src="assets/video/cam3-coral-reef-loop.mp4" poster="assets/img/cam3-coral-reef-loop.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Loop (S-curve)</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Coral reef, orbit result" data-src="assets/video/cam3-coral-reef-orbit.mp4" poster="assets/img/cam3-coral-reef-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
-        </div>
-      </div>
-      <div class="c-slide" data-idx="6">
         <div class="car-label"><span class="scene">Raccoon band</span><span class="src-tag">Kling v2.1 Master input</span></div>
         <div class="cmp3">
           <figure class="shot"><video muted playsinline aria-label="Raccoon band, original input" data-src="assets/video/cam3-raccoon-band-input.mp4" poster="assets/img/cam3-raccoon-band-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
           <figure class="shot ours"><video muted playsinline aria-label="Raccoon band, S-curve loop result" data-src="assets/video/cam3-raccoon-band-loop.mp4" poster="assets/img/cam3-raccoon-band-loop.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Loop (S-curve)</span></figcaption></figure>
           <figure class="shot ours"><video muted playsinline aria-label="Raccoon band, orbit result" data-src="assets/video/cam3-raccoon-band-orbit.mp4" poster="assets/img/cam3-raccoon-band-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
+        </div>
+      </div>
+      <div class="c-slide" data-idx="6">
+        <div class="car-label"><span class="scene">Fire phoenix</span><span class="src-tag">Kling v2.1 Master input</span></div>
+        <div class="cmp3">
+          <figure class="shot"><video muted playsinline aria-label="Fire phoenix, original input" data-src="assets/video/cam3-fire-phoenix-input.mp4" poster="assets/img/cam3-fire-phoenix-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Fire phoenix, S-curve loop result" data-src="assets/video/cam3-fire-phoenix-loop.mp4" poster="assets/img/cam3-fire-phoenix-loop.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Fire phoenix, orbit result" data-src="assets/video/cam3-fire-phoenix-orbit.mp4" poster="assets/img/cam3-fire-phoenix-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
+        </div>
+      </div>
+      <div class="c-slide" data-idx="7">
+        <div class="car-label"><span class="scene">Floating islands</span><span class="src-tag">Kling v2.1 Master input</span></div>
+        <div class="cmp3">
+          <figure class="shot"><video muted playsinline aria-label="Floating islands, original input" data-src="assets/video/cam3-floating-islands-input.mp4" poster="assets/img/cam3-floating-islands-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Floating islands, S-curve loop result" data-src="assets/video/cam3-floating-islands-loop.mp4" poster="assets/img/cam3-floating-islands-loop.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Floating islands, orbit result" data-src="assets/video/cam3-floating-islands-orbit.mp4" poster="assets/img/cam3-floating-islands-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
         </div>
@@ -927,16 +944,98 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
     <div class="task-row">
       <div class="task-head"><span class="num">05</span><h3>Editing Propagation</h3></div>
       <p class="task-dek">GenPropBench, prompt-guided: an edit is made to the first frame, then propagated through the entire clip in one streaming pass.</p>
-      <div class="flow3">
-        <figure class="shot"><video muted loop playsinline autoplay aria-label="Source video" data-src="assets/video/genprop10-src.mp4" poster="assets/img/genprop10-src.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-        <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-        <figure class="shot"><img src="assets/img/genprop10-gen.jpg" alt="Edited first frame"><figcaption><span class="role">Edited first frame</span></figcaption></figure>
-        <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-        <figure class="shot ours"><video muted loop playsinline autoplay aria-label="Propagated result" data-src="assets/video/genprop10-gen.mp4" poster="assets/img/genprop10-gen.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — propagated</span></figcaption></figure>
+      <div class="carousel" id="genpropCarousel">
+        <div class="car-slides">
+      <div class="c-slide" data-active="true" data-idx="0">
+        <div class="flow3">
+          <figure class="shot"><video muted playsinline aria-label="Source video, sample 10" data-src="assets/video/genprop10-src.mp4" poster="assets/img/genprop10-src.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot"><img src="assets/img/genprop10-gen.jpg" alt="Edited first frame, sample 10"><figcaption><span class="role">Edited first frame</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot ours"><video muted playsinline aria-label="Propagated result, sample 10" data-src="assets/video/genprop10-gen.mp4" poster="assets/img/genprop10-gen.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — propagated</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Change aspect ratio from vertical to widescreen, revealing more landscape on both sides.</p>
       </div>
-      <p class="car-prompt">Change aspect ratio from vertical to widescreen, revealing more landscape on both sides.</p>
+      <div class="c-slide" data-idx="1">
+        <div class="flow3">
+          <figure class="shot"><video muted playsinline aria-label="Source video, sample 7" data-src="assets/video/genprop7-src.mp4" poster="assets/img/genprop7-src.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot"><img src="assets/img/genprop7-gen.jpg" alt="Edited first frame, sample 7"><figcaption><span class="role">Edited first frame</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot ours"><video muted playsinline aria-label="Propagated result, sample 7" data-src="assets/video/genprop7-gen.mp4" poster="assets/img/genprop7-gen.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — propagated</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Remove the person’s legs and feet, preserving original background and motion.</p>
+      </div>
+      <div class="c-slide" data-idx="2">
+        <div class="flow3">
+          <figure class="shot"><video muted playsinline aria-label="Source video, sample 13" data-src="assets/video/genprop13-src.mp4" poster="assets/img/genprop13-src.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot"><img src="assets/img/genprop13-gen.jpg" alt="Edited first frame, sample 13"><figcaption><span class="role">Edited first frame</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot ours"><video muted playsinline aria-label="Propagated result, sample 13" data-src="assets/video/genprop13-gen.mp4" poster="assets/img/genprop13-gen.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — propagated</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Change video aspect ratio to widescreen, revealing more background on both sides.</p>
+      </div>
+      <div class="c-slide" data-idx="3">
+        <div class="flow3">
+          <figure class="shot"><video muted playsinline aria-label="Source video, sample 18" data-src="assets/video/genprop18-src.mp4" poster="assets/img/genprop18-src.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot"><img src="assets/img/genprop18-gen.jpg" alt="Edited first frame, sample 18"><figcaption><span class="role">Edited first frame</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot ours"><video muted playsinline aria-label="Propagated result, sample 18" data-src="assets/video/genprop18-gen.mp4" poster="assets/img/genprop18-gen.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — propagated</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Change aspect ratio from vertical to horizontal, revealing more tunnel sides.</p>
+      </div>
+      <div class="c-slide" data-idx="4">
+        <div class="flow3">
+          <figure class="shot"><video muted playsinline aria-label="Source video, sample 19" data-src="assets/video/genprop19-src.mp4" poster="assets/img/genprop19-src.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot"><img src="assets/img/genprop19-gen.jpg" alt="Edited first frame, sample 19"><figcaption><span class="role">Edited first frame</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot ours"><video muted playsinline aria-label="Propagated result, sample 19" data-src="assets/video/genprop19-gen.mp4" poster="assets/img/genprop19-gen.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — propagated</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Add fire and flames to the car and overlay falling snow, preserving original background and motion.</p>
+      </div>
+      <div class="c-slide" data-idx="5">
+        <div class="flow3">
+          <figure class="shot"><video muted playsinline aria-label="Source video, sample 22" data-src="assets/video/genprop22-src.mp4" poster="assets/img/genprop22-src.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot"><img src="assets/img/genprop22-gen.jpg" alt="Edited first frame, sample 22"><figcaption><span class="role">Edited first frame</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot ours"><video muted playsinline aria-label="Propagated result, sample 22" data-src="assets/video/genprop22-gen.mp4" poster="assets/img/genprop22-gen.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — propagated</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Remove the conical hat from the dog's head, preserving original background and motion.</p>
+      </div>
+      <div class="c-slide" data-idx="6">
+        <div class="flow3">
+          <figure class="shot"><video muted playsinline aria-label="Source video, sample 23" data-src="assets/video/genprop23-src.mp4" poster="assets/img/genprop23-src.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot"><img src="assets/img/genprop23-gen.jpg" alt="Edited first frame, sample 23"><figcaption><span class="role">Edited first frame</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot ours"><video muted playsinline aria-label="Propagated result, sample 23" data-src="assets/video/genprop23-gen.mp4" poster="assets/img/genprop23-gen.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — propagated</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Remove the boy in red shirt, preserving original background and motion.</p>
+      </div>
+      <div class="c-slide" data-idx="7">
+        <div class="flow3">
+          <figure class="shot"><video muted playsinline aria-label="Source video, sample 26" data-src="assets/video/genprop26-src.mp4" poster="assets/img/genprop26-src.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot"><img src="assets/img/genprop26-gen.jpg" alt="Edited first frame, sample 26"><figcaption><span class="role">Edited first frame</span></figcaption></figure>
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <figure class="shot ours"><video muted playsinline aria-label="Propagated result, sample 26" data-src="assets/video/genprop26-gen.mp4" poster="assets/img/genprop26-gen.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — propagated</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Recolor the left person blue and the right person red, preserving original background and motion.</p>
+      </div>
+        </div>
+        <div class="car-nav">
+          <button type="button" class="car-arrow prev" aria-label="Previous sample"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <div class="car-dots"></div>
+          <span class="car-count"></span>
+          <button type="button" class="car-arrow next" aria-label="Next sample"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
+        </div>
+      </div>
     </div>
-  </div>
+</div>
 </section>
 
 <section class="light" id="bibtex">
