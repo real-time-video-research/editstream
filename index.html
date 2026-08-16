@@ -295,14 +295,6 @@ figcaption b{color:var(--ink);font-weight:650;}
   color:var(--red);padding:3px 10px;border:1px solid var(--dline);border-radius:100px;}
 .car-label .src-tag{font-family:var(--mono);font-size:11px;color:var(--dink-3);}
 
-/* ---- camera-pose motion groups ---- */
-.motion-groups{display:flex;flex-direction:column;gap:48px;}
-.motion-group + .motion-group{padding-top:44px;border-top:1px solid var(--dline);}
-.group-head{display:flex;align-items:baseline;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
-.group-head h4{font-size:18px;font-weight:650;color:var(--dink);letter-spacing:-.018em;}
-.group-head .group-dek{font-size:13px;color:var(--dink-2);}
-.motion-pairs{display:flex;flex-direction:column;gap:30px;}
-
 /* ---- editing propagation flow ---- */
 .flow3{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:14px;align-items:center;}
 .flow3 .arrow{color:var(--dink-3);flex:none;}
@@ -855,42 +847,74 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
     <!-- ============ 04 Camera Pose Change ============ -->
     <div class="task-row">
       <div class="task-head"><span class="num">04</span><h3>Camera Pose Change</h3></div>
-      <p class="task-dek">ReShoot: an AI-generated source clip — from Sora 2 Pro or Kling v2.1 — replayed along a new camera trajectory, reconstructed from a single monocular input. Grouped by the trajectory the new camera actually follows.</p>
-      <div class="motion-groups">
-    <div class="motion-group">
-      <div class="group-head"><h4>Orbit right</h4><span class="group-dek">The camera arcs sideways around the subject while it holds the frame.</span></div>
-      <div class="carousel" id="camCarouselOrbit">
+      <p class="task-dek">ReShoot: an AI-generated source clip — from Sora 2 Pro or Kling v2.1 — replayed along a new camera trajectory, orbiting the subject or dollying in, reconstructed from a single monocular input.</p>
+      <div class="carousel" id="camCarousel">
         <div class="car-slides">
       <div class="c-slide" data-active="true" data-idx="0">
-        <div class="car-label"><span class="scene">Rooftop night market</span><span class="src-tag">Sora 2 Pro input</span></div>
+        <div class="car-label"><span class="scene">Rooftop night market</span><span class="motion">Orbit right</span><span class="src-tag">Sora 2 Pro input</span></div>
         <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
           <figure class="shot"><video muted playsinline aria-label="Rooftop night market, original Sora 2 Pro input" data-src="assets/video/cam2-sora-market-orig.mp4" poster="assets/img/cam2-sora-market-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
           <figure class="shot ours"><video muted playsinline aria-label="Rooftop night market, EditStream reshoot result" data-src="assets/video/cam2-sora-market-vmm.mp4" poster="assets/img/cam2-sora-market-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
         </div>
       </div>
       <div class="c-slide" data-idx="1">
-        <div class="car-label"><span class="scene">Dragon above the clouds</span><span class="src-tag">Sora 2 Pro input</span></div>
+        <div class="car-label"><span class="scene">Dragon above the clouds</span><span class="motion">Orbit right</span><span class="src-tag">Sora 2 Pro input</span></div>
         <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
           <figure class="shot"><video muted playsinline aria-label="Dragon above the clouds, original Sora 2 Pro input" data-src="assets/video/cam2-sora-dragon-orig.mp4" poster="assets/img/cam2-sora-dragon-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
           <figure class="shot ours"><video muted playsinline aria-label="Dragon above the clouds, EditStream reshoot result" data-src="assets/video/cam2-sora-dragon-vmm.mp4" poster="assets/img/cam2-sora-dragon-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
         </div>
       </div>
       <div class="c-slide" data-idx="2">
-        <div class="car-label"><span class="scene">Dancer on the shoreline</span><span class="src-tag">Sora 2 Pro input</span></div>
+        <div class="car-label"><span class="scene">Volcanic eruption</span><span class="motion">Dolly in</span><span class="src-tag">Sora 2 Pro input</span></div>
+        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
+          <figure class="shot"><video muted playsinline aria-label="Volcanic eruption, original Sora 2 Pro input" data-src="assets/video/cam2-sora-volcano-orig.mp4" poster="assets/img/cam2-sora-volcano-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Volcanic eruption, EditStream reshoot result" data-src="assets/video/cam2-sora-volcano-vmm.mp4" poster="assets/img/cam2-sora-volcano-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+        </div>
+      </div>
+      <div class="c-slide" data-idx="3">
+        <div class="car-label"><span class="scene">Glowing mystical tree</span><span class="motion">Dolly in</span><span class="src-tag">Sora 2 Pro input</span></div>
+        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
+          <figure class="shot"><video muted playsinline aria-label="Glowing mystical tree, original Sora 2 Pro input" data-src="assets/video/cam2-sora-tree-orig.mp4" poster="assets/img/cam2-sora-tree-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Glowing mystical tree, EditStream reshoot result" data-src="assets/video/cam2-sora-tree-vmm.mp4" poster="assets/img/cam2-sora-tree-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+        </div>
+      </div>
+      <div class="c-slide" data-idx="4">
+        <div class="car-label"><span class="scene">Futuristic transit tunnel</span><span class="motion">Dolly in</span><span class="src-tag">Sora 2 Pro input</span></div>
+        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
+          <figure class="shot"><video muted playsinline aria-label="Futuristic transit tunnel, original Sora 2 Pro input" data-src="assets/video/cam2-sora-tunnel-orig.mp4" poster="assets/img/cam2-sora-tunnel-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Futuristic transit tunnel, EditStream reshoot result" data-src="assets/video/cam2-sora-tunnel-vmm.mp4" poster="assets/img/cam2-sora-tunnel-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+        </div>
+      </div>
+      <div class="c-slide" data-idx="5">
+        <div class="car-label"><span class="scene">Dancer on the shoreline</span><span class="motion">Orbit right</span><span class="src-tag">Sora 2 Pro input</span></div>
         <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
           <figure class="shot"><video muted playsinline aria-label="Dancer on the shoreline, original Sora 2 Pro input" data-src="assets/video/cam2-sora-dancer-orig.mp4" poster="assets/img/cam2-sora-dancer-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
           <figure class="shot ours"><video muted playsinline aria-label="Dancer on the shoreline, EditStream reshoot result" data-src="assets/video/cam2-sora-dancer-vmm.mp4" poster="assets/img/cam2-sora-dancer-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
         </div>
       </div>
-      <div class="c-slide" data-idx="3">
-        <div class="car-label"><span class="scene">Phoenix over the city</span><span class="src-tag">Kling v2.1 Master input</span></div>
+      <div class="c-slide" data-idx="6">
+        <div class="car-label"><span class="scene">Phoenix over the city</span><span class="motion">Orbit right</span><span class="src-tag">Kling v2.1 Master input</span></div>
         <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
           <figure class="shot"><video muted playsinline aria-label="Phoenix over the city, original Kling v2.1 Master input" data-src="assets/video/cam2-kling-phoenix-orig.mp4" poster="assets/img/cam2-kling-phoenix-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
           <figure class="shot ours"><video muted playsinline aria-label="Phoenix over the city, EditStream reshoot result" data-src="assets/video/cam2-kling-phoenix-vmm.mp4" poster="assets/img/cam2-kling-phoenix-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
         </div>
       </div>
-      <div class="c-slide" data-idx="4">
-        <div class="car-label"><span class="scene">Hologram data review</span><span class="src-tag">Kling v2.1 Master input</span></div>
+      <div class="c-slide" data-idx="7">
+        <div class="car-label"><span class="scene">Server room robotics</span><span class="motion">Dolly in</span><span class="src-tag">Kling v2.1 Master input</span></div>
+        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
+          <figure class="shot"><video muted playsinline aria-label="Server room robotics, original Kling v2.1 Master input" data-src="assets/video/cam2-kling-server-orig.mp4" poster="assets/img/cam2-kling-server-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Server room robotics, EditStream reshoot result" data-src="assets/video/cam2-kling-server-vmm.mp4" poster="assets/img/cam2-kling-server-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+        </div>
+      </div>
+      <div class="c-slide" data-idx="8">
+        <div class="car-label"><span class="scene">Kitchen plating</span><span class="motion">Dolly in</span><span class="src-tag">Kling v2.1 Master input</span></div>
+        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
+          <figure class="shot"><video muted playsinline aria-label="Kitchen plating, original Kling v2.1 Master input" data-src="assets/video/cam2-kling-kitchen-orig.mp4" poster="assets/img/cam2-kling-kitchen-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Kitchen plating, EditStream reshoot result" data-src="assets/video/cam2-kling-kitchen-vmm.mp4" poster="assets/img/cam2-kling-kitchen-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+        </div>
+      </div>
+      <div class="c-slide" data-idx="9">
+        <div class="car-label"><span class="scene">Hologram data review</span><span class="motion">Orbit right</span><span class="src-tag">Kling v2.1 Master input</span></div>
         <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
           <figure class="shot"><video muted playsinline aria-label="Hologram data review, original Kling v2.1 Master input" data-src="assets/video/cam2-kling-hologram-orig.mp4" poster="assets/img/cam2-kling-hologram-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
           <figure class="shot ours"><video muted playsinline aria-label="Hologram data review, EditStream reshoot result" data-src="assets/video/cam2-kling-hologram-vmm.mp4" poster="assets/img/cam2-kling-hologram-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
@@ -905,95 +929,8 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
         </div>
       </div>
     </div>
-    <div class="motion-group">
-      <div class="group-head"><h4>Pan up</h4><span class="group-dek">The camera pitches upward without changing position.</span></div>
-      <div class="motion-pairs">
-        <div>
-          <div class="car-label"><span class="scene">Coffee pour</span><span class="src-tag">Sora 2 Pro input</span></div>
-          <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-            <figure class="shot"><video muted loop playsinline autoplay aria-label="Coffee pour, original Sora 2 Pro input" data-src="assets/video/cam2-sora-coffee-orig.mp4" poster="assets/img/cam2-sora-coffee-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-            <figure class="shot ours"><video muted loop playsinline autoplay aria-label="Coffee pour, EditStream reshoot result" data-src="assets/video/cam2-sora-coffee-vmm.mp4" poster="assets/img/cam2-sora-coffee-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
-          </div>
-        </div>
-        <div>
-          <div class="car-label"><span class="scene">Dragon rider over peaks</span><span class="src-tag">Kling v2.1 Master input</span></div>
-          <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-            <figure class="shot"><video muted loop playsinline autoplay aria-label="Dragon rider over peaks, original Kling v2.1 Master input" data-src="assets/video/cam2-kling-dragonrider-orig.mp4" poster="assets/img/cam2-kling-dragonrider-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-            <figure class="shot ours"><video muted loop playsinline autoplay aria-label="Dragon rider over peaks, EditStream reshoot result" data-src="assets/video/cam2-kling-dragonrider-vmm.mp4" poster="assets/img/cam2-kling-dragonrider-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="motion-group">
-      <div class="group-head"><h4>Dolly in</h4><span class="group-dek">The camera physically moves toward the subject, reconstructed in 3D — not a lens zoom.</span></div>
-      <div class="carousel" id="camCarouselZoom">
-        <div class="car-slides">
-      <div class="c-slide" data-active="true" data-idx="0">
-        <div class="car-label"><span class="scene">Volcanic eruption</span><span class="src-tag">Sora 2 Pro input</span></div>
-        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-          <figure class="shot"><video muted playsinline aria-label="Volcanic eruption, original Sora 2 Pro input" data-src="assets/video/cam2-sora-volcano-orig.mp4" poster="assets/img/cam2-sora-volcano-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Volcanic eruption, EditStream reshoot result" data-src="assets/video/cam2-sora-volcano-vmm.mp4" poster="assets/img/cam2-sora-volcano-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
-        </div>
-      </div>
-      <div class="c-slide" data-idx="1">
-        <div class="car-label"><span class="scene">Glowing mystical tree</span><span class="src-tag">Sora 2 Pro input</span></div>
-        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-          <figure class="shot"><video muted playsinline aria-label="Glowing mystical tree, original Sora 2 Pro input" data-src="assets/video/cam2-sora-tree-orig.mp4" poster="assets/img/cam2-sora-tree-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Glowing mystical tree, EditStream reshoot result" data-src="assets/video/cam2-sora-tree-vmm.mp4" poster="assets/img/cam2-sora-tree-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
-        </div>
-      </div>
-      <div class="c-slide" data-idx="2">
-        <div class="car-label"><span class="scene">Futuristic transit tunnel</span><span class="src-tag">Sora 2 Pro input</span></div>
-        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-          <figure class="shot"><video muted playsinline aria-label="Futuristic transit tunnel, original Sora 2 Pro input" data-src="assets/video/cam2-sora-tunnel-orig.mp4" poster="assets/img/cam2-sora-tunnel-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Futuristic transit tunnel, EditStream reshoot result" data-src="assets/video/cam2-sora-tunnel-vmm.mp4" poster="assets/img/cam2-sora-tunnel-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
-        </div>
-      </div>
-      <div class="c-slide" data-idx="3">
-        <div class="car-label"><span class="scene">Server room robotics</span><span class="src-tag">Kling v2.1 Master input</span></div>
-        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-          <figure class="shot"><video muted playsinline aria-label="Server room robotics, original Kling v2.1 Master input" data-src="assets/video/cam2-kling-server-orig.mp4" poster="assets/img/cam2-kling-server-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Server room robotics, EditStream reshoot result" data-src="assets/video/cam2-kling-server-vmm.mp4" poster="assets/img/cam2-kling-server-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
-        </div>
-      </div>
-      <div class="c-slide" data-idx="4">
-        <div class="car-label"><span class="scene">Kitchen plating</span><span class="src-tag">Kling v2.1 Master input</span></div>
-        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-          <figure class="shot"><video muted playsinline aria-label="Kitchen plating, original Kling v2.1 Master input" data-src="assets/video/cam2-kling-kitchen-orig.mp4" poster="assets/img/cam2-kling-kitchen-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Kitchen plating, EditStream reshoot result" data-src="assets/video/cam2-kling-kitchen-vmm.mp4" poster="assets/img/cam2-kling-kitchen-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
-        </div>
-      </div>
-        </div>
-        <div class="car-nav">
-          <button type="button" class="car-arrow prev" aria-label="Previous sample"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
-          <div class="car-dots"></div>
-          <span class="car-count"></span>
-          <button type="button" class="car-arrow next" aria-label="Next sample"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
-        </div>
-      </div>
-    </div>
-    <div class="motion-group">
-      <div class="group-head"><h4>S-curve orbit + push-in</h4><span class="group-dek">A combined move: a smooth lateral sway around the subject while easing forward.</span></div>
-      <div class="motion-pairs">
-        <div>
-          <div class="car-label"><span class="scene">Neon ribbon dancer</span><span class="src-tag">Sora 2 Pro input</span></div>
-          <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-            <figure class="shot"><video muted loop playsinline autoplay aria-label="Neon ribbon dancer, original Sora 2 Pro input" data-src="assets/video/cam2-sora-neondancer-orig.mp4" poster="assets/img/cam2-sora-neondancer-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-            <figure class="shot ours"><video muted loop playsinline autoplay aria-label="Neon ribbon dancer, EditStream reshoot result" data-src="assets/video/cam2-sora-neondancer-vmm.mp4" poster="assets/img/cam2-sora-neondancer-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
-          </div>
-        </div>
-        <div>
-          <div class="car-label"><span class="scene">Coral reef</span><span class="src-tag">Kling v2.1 Master input</span></div>
-          <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-            <figure class="shot"><video muted loop playsinline autoplay aria-label="Coral reef, original Kling v2.1 Master input" data-src="assets/video/cam2-kling-coralreef-orig.mp4" poster="assets/img/cam2-kling-coralreef-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-            <figure class="shot ours"><video muted loop playsinline autoplay aria-label="Coral reef, EditStream reshoot result" data-src="assets/video/cam2-kling-coralreef-vmm.mp4" poster="assets/img/cam2-kling-coralreef-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
-          </div>
-        </div>
-      </div>
-    </div>
-      </div>
-    </div>
-<!-- ============ 05 Editing Propagation ============ -->
+
+    <!-- ============ 05 Editing Propagation ============ -->
     <div class="task-row">
       <div class="task-head"><span class="num">05</span><h3>Editing Propagation</h3></div>
       <p class="task-dek">GenPropBench, prompt-guided: an edit is made to the first frame, then propagated through the entire clip in one streaming pass.</p>
