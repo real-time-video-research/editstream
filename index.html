@@ -295,6 +295,14 @@ figcaption b{color:var(--ink);font-weight:650;}
   color:var(--red);padding:3px 10px;border:1px solid var(--dline);border-radius:100px;}
 .car-label .src-tag{font-family:var(--mono);font-size:11px;color:var(--dink-3);}
 
+/* ---- camera-pose motion groups ---- */
+.motion-groups{display:flex;flex-direction:column;gap:48px;}
+.motion-group + .motion-group{padding-top:44px;border-top:1px solid var(--dline);}
+.group-head{display:flex;align-items:baseline;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+.group-head h4{font-size:18px;font-weight:650;color:var(--dink);letter-spacing:-.018em;}
+.group-head .group-dek{font-size:13px;color:var(--dink-2);}
+.motion-pairs{display:flex;flex-direction:column;gap:30px;}
+
 /* ---- editing propagation flow ---- */
 .flow3{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:14px;align-items:center;}
 .flow3 .arrow{color:var(--dink-3);flex:none;}
@@ -847,77 +855,71 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
     <!-- ============ 04 Camera Pose Change ============ -->
     <div class="task-row">
       <div class="task-head"><span class="num">04</span><h3>Camera Pose Change</h3></div>
-      <p class="task-dek">ReShoot: an AI-generated source clip — from Sora 2 Pro or Kling v2.1 — replayed along a new camera trajectory, orbiting the subject or dollying in, reconstructed from a single monocular input.</p>
+      <p class="task-dek">ReShoot: an AI-generated source clip — from Sora 2 Pro or Kling v2.1 — reconstructed in 3D and replayed along a new camera trajectory. Same input, two different moves: a wide S-curve orbit that sways and pushes in, and a straight orbit around the subject.</p>
       <div class="carousel" id="camCarousel">
         <div class="car-slides">
       <div class="c-slide" data-active="true" data-idx="0">
-        <div class="car-label"><span class="scene">Rooftop night market</span><span class="motion">Orbit right</span><span class="src-tag">Sora 2 Pro input</span></div>
-        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-          <figure class="shot"><video muted playsinline aria-label="Rooftop night market, original Sora 2 Pro input" data-src="assets/video/cam2-sora-market-orig.mp4" poster="assets/img/cam2-sora-market-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Rooftop night market, EditStream reshoot result" data-src="assets/video/cam2-sora-market-vmm.mp4" poster="assets/img/cam2-sora-market-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+        <div class="car-label"><span class="scene">Shoreline dancer</span><span class="src-tag">Sora 2 Pro input</span></div>
+        <div class="cmp3">
+          <figure class="shot"><video muted playsinline aria-label="Shoreline dancer, original input" data-src="assets/video/cam3-shoreline-dancer-input.mp4" poster="assets/img/cam3-shoreline-dancer-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <figure class="shot"><video muted playsinline aria-label="Shoreline dancer, S-curve loop result" data-src="assets/video/cam3-shoreline-dancer-loop.mp4" poster="assets/img/cam3-shoreline-dancer-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Shoreline dancer, orbit result" data-src="assets/video/cam3-shoreline-dancer-orbit.mp4" poster="assets/img/cam3-shoreline-dancer-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
       <div class="c-slide" data-idx="1">
-        <div class="car-label"><span class="scene">Dragon above the clouds</span><span class="motion">Orbit right</span><span class="src-tag">Sora 2 Pro input</span></div>
-        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-          <figure class="shot"><video muted playsinline aria-label="Dragon above the clouds, original Sora 2 Pro input" data-src="assets/video/cam2-sora-dragon-orig.mp4" poster="assets/img/cam2-sora-dragon-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Dragon above the clouds, EditStream reshoot result" data-src="assets/video/cam2-sora-dragon-vmm.mp4" poster="assets/img/cam2-sora-dragon-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+        <div class="car-label"><span class="scene">Rooftop night market</span><span class="src-tag">Sora 2 Pro input</span></div>
+        <div class="cmp3">
+          <figure class="shot"><video muted playsinline aria-label="Rooftop night market, original input" data-src="assets/video/cam3-rooftop-market-input.mp4" poster="assets/img/cam3-rooftop-market-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <figure class="shot"><video muted playsinline aria-label="Rooftop night market, S-curve loop result" data-src="assets/video/cam3-rooftop-market-loop.mp4" poster="assets/img/cam3-rooftop-market-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Rooftop night market, orbit result" data-src="assets/video/cam3-rooftop-market-orbit.mp4" poster="assets/img/cam3-rooftop-market-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
       <div class="c-slide" data-idx="2">
-        <div class="car-label"><span class="scene">Volcanic eruption</span><span class="motion">Dolly in</span><span class="src-tag">Sora 2 Pro input</span></div>
-        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-          <figure class="shot"><video muted playsinline aria-label="Volcanic eruption, original Sora 2 Pro input" data-src="assets/video/cam2-sora-volcano-orig.mp4" poster="assets/img/cam2-sora-volcano-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Volcanic eruption, EditStream reshoot result" data-src="assets/video/cam2-sora-volcano-vmm.mp4" poster="assets/img/cam2-sora-volcano-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+        <div class="car-label"><span class="scene">Coffee pour</span><span class="src-tag">Kling v2.1 Master input</span></div>
+        <div class="cmp3">
+          <figure class="shot"><video muted playsinline aria-label="Coffee pour, original input" data-src="assets/video/cam3-coffee-pour-input.mp4" poster="assets/img/cam3-coffee-pour-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <figure class="shot"><video muted playsinline aria-label="Coffee pour, S-curve loop result" data-src="assets/video/cam3-coffee-pour-loop.mp4" poster="assets/img/cam3-coffee-pour-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Coffee pour, orbit result" data-src="assets/video/cam3-coffee-pour-orbit.mp4" poster="assets/img/cam3-coffee-pour-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
       <div class="c-slide" data-idx="3">
-        <div class="car-label"><span class="scene">Glowing mystical tree</span><span class="motion">Dolly in</span><span class="src-tag">Sora 2 Pro input</span></div>
-        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-          <figure class="shot"><video muted playsinline aria-label="Glowing mystical tree, original Sora 2 Pro input" data-src="assets/video/cam2-sora-tree-orig.mp4" poster="assets/img/cam2-sora-tree-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Glowing mystical tree, EditStream reshoot result" data-src="assets/video/cam2-sora-tree-vmm.mp4" poster="assets/img/cam2-sora-tree-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+        <div class="car-label"><span class="scene">Data analyst</span><span class="src-tag">Kling v2.1 Master input</span></div>
+        <div class="cmp3">
+          <figure class="shot"><video muted playsinline aria-label="Data analyst, original input" data-src="assets/video/cam3-data-analyst-input.mp4" poster="assets/img/cam3-data-analyst-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <figure class="shot"><video muted playsinline aria-label="Data analyst, S-curve loop result" data-src="assets/video/cam3-data-analyst-loop.mp4" poster="assets/img/cam3-data-analyst-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Data analyst, orbit result" data-src="assets/video/cam3-data-analyst-orbit.mp4" poster="assets/img/cam3-data-analyst-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
       <div class="c-slide" data-idx="4">
-        <div class="car-label"><span class="scene">Futuristic transit tunnel</span><span class="motion">Dolly in</span><span class="src-tag">Sora 2 Pro input</span></div>
-        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-          <figure class="shot"><video muted playsinline aria-label="Futuristic transit tunnel, original Sora 2 Pro input" data-src="assets/video/cam2-sora-tunnel-orig.mp4" poster="assets/img/cam2-sora-tunnel-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Futuristic transit tunnel, EditStream reshoot result" data-src="assets/video/cam2-sora-tunnel-vmm.mp4" poster="assets/img/cam2-sora-tunnel-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+        <div class="car-label"><span class="scene">Kitchen plating</span><span class="src-tag">Kling v2.1 Master input</span></div>
+        <div class="cmp3">
+          <figure class="shot"><video muted playsinline aria-label="Kitchen plating, original input" data-src="assets/video/cam3-kitchen-plating-input.mp4" poster="assets/img/cam3-kitchen-plating-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <figure class="shot"><video muted playsinline aria-label="Kitchen plating, S-curve loop result" data-src="assets/video/cam3-kitchen-plating-loop.mp4" poster="assets/img/cam3-kitchen-plating-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Kitchen plating, orbit result" data-src="assets/video/cam3-kitchen-plating-orbit.mp4" poster="assets/img/cam3-kitchen-plating-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
       <div class="c-slide" data-idx="5">
-        <div class="car-label"><span class="scene">Dancer on the shoreline</span><span class="motion">Orbit right</span><span class="src-tag">Sora 2 Pro input</span></div>
-        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-          <figure class="shot"><video muted playsinline aria-label="Dancer on the shoreline, original Sora 2 Pro input" data-src="assets/video/cam2-sora-dancer-orig.mp4" poster="assets/img/cam2-sora-dancer-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Dancer on the shoreline, EditStream reshoot result" data-src="assets/video/cam2-sora-dancer-vmm.mp4" poster="assets/img/cam2-sora-dancer-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+        <div class="car-label"><span class="scene">Coral reef</span><span class="src-tag">Kling v2.1 Master input</span></div>
+        <div class="cmp3">
+          <figure class="shot"><video muted playsinline aria-label="Coral reef, original input" data-src="assets/video/cam3-coral-reef-input.mp4" poster="assets/img/cam3-coral-reef-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <figure class="shot"><video muted playsinline aria-label="Coral reef, S-curve loop result" data-src="assets/video/cam3-coral-reef-loop.mp4" poster="assets/img/cam3-coral-reef-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Coral reef, orbit result" data-src="assets/video/cam3-coral-reef-orbit.mp4" poster="assets/img/cam3-coral-reef-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
       <div class="c-slide" data-idx="6">
-        <div class="car-label"><span class="scene">Phoenix over the city</span><span class="motion">Orbit right</span><span class="src-tag">Kling v2.1 Master input</span></div>
-        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-          <figure class="shot"><video muted playsinline aria-label="Phoenix over the city, original Kling v2.1 Master input" data-src="assets/video/cam2-kling-phoenix-orig.mp4" poster="assets/img/cam2-kling-phoenix-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Phoenix over the city, EditStream reshoot result" data-src="assets/video/cam2-kling-phoenix-vmm.mp4" poster="assets/img/cam2-kling-phoenix-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+        <div class="car-label"><span class="scene">Storm dragon</span><span class="src-tag">Kling v2.1 Master input</span></div>
+        <div class="cmp3">
+          <figure class="shot"><video muted playsinline aria-label="Storm dragon, original input" data-src="assets/video/cam3-storm-dragon-input.mp4" poster="assets/img/cam3-storm-dragon-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <figure class="shot"><video muted playsinline aria-label="Storm dragon, S-curve loop result" data-src="assets/video/cam3-storm-dragon-loop.mp4" poster="assets/img/cam3-storm-dragon-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Storm dragon, orbit result" data-src="assets/video/cam3-storm-dragon-orbit.mp4" poster="assets/img/cam3-storm-dragon-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
       <div class="c-slide" data-idx="7">
-        <div class="car-label"><span class="scene">Server room robotics</span><span class="motion">Dolly in</span><span class="src-tag">Kling v2.1 Master input</span></div>
-        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-          <figure class="shot"><video muted playsinline aria-label="Server room robotics, original Kling v2.1 Master input" data-src="assets/video/cam2-kling-server-orig.mp4" poster="assets/img/cam2-kling-server-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Server room robotics, EditStream reshoot result" data-src="assets/video/cam2-kling-server-vmm.mp4" poster="assets/img/cam2-kling-server-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
-        </div>
-      </div>
-      <div class="c-slide" data-idx="8">
-        <div class="car-label"><span class="scene">Kitchen plating</span><span class="motion">Dolly in</span><span class="src-tag">Kling v2.1 Master input</span></div>
-        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-          <figure class="shot"><video muted playsinline aria-label="Kitchen plating, original Kling v2.1 Master input" data-src="assets/video/cam2-kling-kitchen-orig.mp4" poster="assets/img/cam2-kling-kitchen-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Kitchen plating, EditStream reshoot result" data-src="assets/video/cam2-kling-kitchen-vmm.mp4" poster="assets/img/cam2-kling-kitchen-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
-        </div>
-      </div>
-      <div class="c-slide" data-idx="9">
-        <div class="car-label"><span class="scene">Hologram data review</span><span class="motion">Orbit right</span><span class="src-tag">Kling v2.1 Master input</span></div>
-        <div class="cmp2" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:760px;">
-          <figure class="shot"><video muted playsinline aria-label="Hologram data review, original Kling v2.1 Master input" data-src="assets/video/cam2-kling-hologram-orig.mp4" poster="assets/img/cam2-kling-hologram-orig.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Hologram data review, EditStream reshoot result" data-src="assets/video/cam2-kling-hologram-vmm.mp4" poster="assets/img/cam2-kling-hologram-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+        <div class="car-label"><span class="scene">Raccoon band</span><span class="src-tag">Kling v2.1 Master input</span></div>
+        <div class="cmp3">
+          <figure class="shot"><video muted playsinline aria-label="Raccoon band, original input" data-src="assets/video/cam3-raccoon-band-input.mp4" poster="assets/img/cam3-raccoon-band-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+          <figure class="shot"><video muted playsinline aria-label="Raccoon band, S-curve loop result" data-src="assets/video/cam3-raccoon-band-loop.mp4" poster="assets/img/cam3-raccoon-band-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Raccoon band, orbit result" data-src="assets/video/cam3-raccoon-band-orbit.mp4" poster="assets/img/cam3-raccoon-band-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
         </div>
@@ -929,8 +931,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
         </div>
       </div>
     </div>
-
-    <!-- ============ 05 Editing Propagation ============ -->
+<!-- ============ 05 Editing Propagation ============ -->
     <div class="task-row">
       <div class="task-head"><span class="num">05</span><h3>Editing Propagation</h3></div>
       <p class="task-dek">GenPropBench, prompt-guided: an edit is made to the first frame, then propagated through the entire clip in one streaming pass.</p>
