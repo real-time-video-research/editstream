@@ -5,673 +5,926 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="EditStream: a unified autoregressive framework for interactive video generation and editing. Six tasks on one DiT backbone, distilled into a 4-step causal streaming model.">
 <meta property="og:title" content="EditStream">
-<meta property="og:description" content="A unified autoregressive framework for interactive video generation and editing.">
+<meta property="og:description" content="Generate, transform and edit video in one model, as it streams.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="assets/img/a-submarine.jpg">
+<meta property="og:image" content="assets/img/teaser-poster.jpg">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0A0A0C">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#127902;</text></svg>">
 <title>EditStream</title>
 <style>
-/* ================= TOKENS ================= */
+/* ===================== COMMITTED PALETTE =====================
+   Deliberate light/dark alternation (Adobe-style), fixed in both
+   OS themes: reading bands are white, media bands are near-black. */
 :root{
-  --paper:#F7F7F8;
-  --card:#FFFFFF;
-  --sunk:#F0F1F3;
-  --line:#E4E5E9;
-  --line-2:#CFD2D8;
-  --ink:#101216;
-  --ink-2:#666B75;
-  --ink-3:#93979F;
-  --accent:#2D53D0;
-  --accent-soft:#E9EEFB;
-  --bar:#B9C2DA;
-  --radius:4px;
-  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --white:#FFFFFF;
+  --off:#F4F4F6;
+  --line:#E3E3E8;
+  --line-2:#CFCFD6;
+  --ink:#0C0C0E;
+  --ink-2:#5A5B63;
+  --ink-3:#8B8C95;
+
+  --black:#0A0A0C;
+  --black-2:#141417;
+  --black-3:#1E1E23;
+  --dline:#2A2A31;
+  --dink:#F4F4F6;
+  --dink-2:#A0A1AA;
+  --dink-3:#6E6F79;
+
+  --red:#FA0F00;
+  --red-soft:#FF4436;
+
+  --r-sm:8px;
+  --r-md:12px;
+  --r-lg:18px;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Helvetica,Arial,sans-serif;
   --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --paper:#0D0E11;
-    --card:#15171B;
-    --sunk:#101216;
-    --line:#23262B;
-    --line-2:#343840;
-    --ink:#E8E9EC;
-    --ink-2:#8E939B;
-    --ink-3:#6B7078;
-    --accent:#7E9DFF;
-    --accent-soft:#182039;
-    --bar:#3A4356;
-  }
-}
-:root[data-theme="dark"]{
-  --paper:#0D0E11;
-  --card:#15171B;
-  --sunk:#101216;
-  --line:#23262B;
-  --line-2:#343840;
-  --ink:#E8E9EC;
-  --ink-2:#8E939B;
-  --ink-3:#6B7078;
-  --accent:#7E9DFF;
-  --accent-soft:#182039;
-  --bar:#3A4356;
+  --wide:1200px;
+  --text:720px;
 }
 
-/* ================= BASE ================= */
 *,*::before,*::after{box-sizing:border-box;}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
 body{
-  margin:0;background:var(--paper);color:var(--ink);
-  font-family:var(--sans);font-size:16px;line-height:1.6;
+  margin:0;background:var(--white);color:var(--ink);
+  font-family:var(--sans);font-size:17px;line-height:1.6;
   -webkit-font-smoothing:antialiased;
 }
-h1,h2,h3,h4{margin:0;font-weight:640;letter-spacing:-.021em;text-wrap:balance;}
+h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.028em;line-height:1.08;text-wrap:balance;}
 p{margin:0;}
 ul{margin:0;padding:0;list-style:none;}
-a{color:var(--accent);text-decoration:none;}
-a:hover{text-decoration:underline;}
 img,video{display:block;max-width:100%;}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px;}
-::selection{background:var(--accent);color:#fff;}
-code{font-family:var(--mono);font-size:.92em;background:var(--sunk);border:1px solid var(--line);border-radius:3px;padding:1px 5px;}
+a{color:inherit;}
+:focus-visible{outline:2px solid var(--red);outline-offset:3px;border-radius:3px;}
+::selection{background:var(--red);color:#fff;}
 
-.wrap{max-width:1120px;margin:0 auto;padding:0 32px;}
-@media (max-width:640px){.wrap{padding:0 20px;}}
+.wide{width:100%;max-width:var(--wide);margin-inline:auto;padding-inline:32px;}
+.narrow{width:100%;max-width:var(--text);margin-inline:auto;padding-inline:32px;}
+@media (max-width:640px){.wide,.narrow{padding-inline:20px;}}
 
-.label{
-  font-family:var(--mono);font-size:11px;letter-spacing:.11em;text-transform:uppercase;
-  color:var(--ink-3);
+.kicker{
+  font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);
 }
-.rule{height:1px;background:var(--line);border:0;margin:0;}
+.dark .kicker{color:var(--dink-3);}
+.kicker .mark{color:var(--red);}
 
-/* ================= HEADER ================= */
-.bar{
-  position:sticky;top:0;z-index:50;background:var(--paper);border-bottom:1px solid var(--line);
+/* ===================== DARK BAND ===================== */
+.dark{background:var(--black);color:var(--dink);}
+.dark h1,.dark h2,.dark h3,.dark h4{color:var(--dink);}
+
+/* ===================== NAV ===================== */
+.nav{position:sticky;top:0;z-index:80;background:rgba(10,10,12,.82);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--dline);}
+.nav-in{max-width:var(--wide);margin-inline:auto;padding:0 32px;height:56px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;}
+.logo{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:700;letter-spacing:-.02em;color:var(--dink);}
+.logo .glyph{width:9px;height:9px;border-radius:2px;background:var(--red);flex:none;}
+.nav ul{display:flex;gap:26px;}
+.nav ul a{font-size:13px;color:var(--dink-2);text-decoration:none;transition:color .15s;}
+.nav ul a:hover{color:var(--dink);}
+@media (max-width:820px){.nav ul{display:none;}}
+
+/* ===================== HERO ===================== */
+.hero{padding:92px 0 0;position:relative;overflow:hidden;}
+.hero::before{
+  content:"";position:absolute;inset:-40% 30% 40% -20%;pointer-events:none;
+  background:radial-gradient(60% 60% at 30% 40%,rgba(250,15,0,.13),transparent 70%);
 }
-.bar-in{display:flex;align-items:center;justify-content:space-between;height:54px;gap:20px;}
-.mark{font-size:15px;font-weight:640;letter-spacing:-.02em;white-space:nowrap;}
-.navlinks{display:flex;gap:24px;}
-.navlinks a{font-size:13.5px;color:var(--ink-2);}
-.navlinks a:hover{color:var(--ink);text-decoration:none;}
-@media (max-width:800px){.navlinks{display:none;}}
+.hero-in{position:relative;}
+.h-title{font-size:clamp(52px,9vw,112px);line-height:.94;letter-spacing:-.045em;}
+.h-sub{margin-top:24px;font-size:clamp(19px,2.3vw,26px);line-height:1.35;color:var(--dink);
+  max-width:19em;font-weight:400;letter-spacing:-.018em;}
+.h-venue{margin-bottom:26px;}
+.authors{margin-top:38px;font-size:14px;line-height:1.9;color:var(--dink-2);max-width:60em;}
+.authors b{color:var(--dink);font-weight:600;white-space:nowrap;}
+.authors sup{font-size:9.5px;color:var(--dink-3);font-weight:400;}
+.affil{margin-top:10px;font-size:12px;color:var(--dink-3);line-height:1.75;}
 
-/* ================= BUTTONS ================= */
-.btns{display:flex;flex-wrap:wrap;gap:8px;}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:36px;}
 .btn{
-  display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:var(--radius);
-  border:1px solid var(--line-2);background:var(--card);color:var(--ink);
-  font-size:13.5px;font-weight:500;transition:border-color .14s ease,background .14s ease;
+  display:inline-flex;align-items:center;gap:9px;padding:12px 24px;border-radius:100px;
+  font-size:14.5px;font-weight:600;letter-spacing:-.008em;text-decoration:none;
+  transition:transform .16s ease,background .16s ease,border-color .16s ease;
 }
-.btn:hover{border-color:var(--ink-3);text-decoration:none;}
-.btn.solid{background:var(--ink);color:var(--paper);border-color:var(--ink);}
-.btn[aria-disabled="true"]{color:var(--ink-3);cursor:not-allowed;background:var(--card);border-color:var(--line);}
-.btn[aria-disabled="true"]:hover{border-color:var(--line);}
-.pill{
-  font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
-  padding:2px 6px;border-radius:3px;background:var(--sunk);border:1px solid var(--line);color:var(--ink-3);
-}
+.btn-primary{background:var(--red);color:#fff;}
+.btn-primary:hover{background:var(--red-soft);transform:translateY(-1px);}
+.btn-ghost{border:1px solid var(--dline);color:var(--dink);background:transparent;}
+.btn-ghost:hover{border-color:var(--dink-3);}
+.btn[aria-disabled="true"]{cursor:not-allowed;}
+.btn .soon{font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;opacity:.65;}
 
-/* ================= HERO ================= */
-.hero{padding:64px 0 0;}
-.hero-grid{display:grid;grid-template-columns:1fr;gap:22px;max-width:800px;}
-.hero h1{font-size:clamp(40px,6.4vw,64px);line-height:1.02;letter-spacing:-.035em;}
-.hero .tagline{font-size:18px;color:var(--ink-2);max-width:60ch;line-height:1.5;}
-.venue{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-.venue span{
-  font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;
-  color:var(--ink-2);border:1px solid var(--line);background:var(--card);border-radius:3px;padding:4px 9px;
-}
-.authors{font-size:14.5px;line-height:1.9;color:var(--ink-2);max-width:78ch;}
-.authors b{color:var(--ink);font-weight:560;}
-.authors sup{font-size:10px;color:var(--ink-3);}
-.affil{margin-top:6px;font-size:12.5px;color:var(--ink-3);line-height:1.7;}
+/* ===================== SPEC STRIP ===================== */
+.specs{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:76px;
+  border-top:1px solid var(--dline);}
+.specs > div{padding:26px 26px 30px;border-right:1px solid var(--dline);}
+.specs > div:last-child{border-right:0;}
+.specs .v{font-size:40px;font-weight:700;letter-spacing:-.045em;line-height:1;
+  font-variant-numeric:tabular-nums;color:var(--dink);}
+.specs .v em{font-style:normal;font-size:16px;font-weight:500;color:var(--dink-2);margin-left:4px;letter-spacing:-.01em;}
+.specs p{margin-top:11px;font-size:12.5px;line-height:1.5;color:var(--dink-2);}
+@media (max-width:880px){.specs{grid-template-columns:repeat(2,1fr);}
+  .specs > div:nth-child(2n){border-right:0;}
+  .specs > div:nth-child(n+3){border-top:1px solid var(--dline);}}
+@media (max-width:460px){.specs{grid-template-columns:1fr;}
+  .specs > div{border-right:0;border-top:1px solid var(--dline);}}
 
-/* ================= MODULE ================= */
-.mod{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);}
-.mod-head{
-  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
-  padding:13px 18px;border-bottom:1px solid var(--line);
-}
-.mod-body{padding:18px;}
+/* ===================== STAGE / VIEWER ===================== */
+.stage{padding:80px 0 90px;}
+.stage-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;
+  flex-wrap:wrap;margin-bottom:20px;}
+.stage-head h2{font-size:clamp(24px,3vw,34px);}
+.stage-head p{margin-top:9px;font-size:14.5px;color:var(--dink-2);}
 
-/* ================= STAGE (hero demo) ================= */
-.stage{margin-top:44px;}
-.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:var(--radius);overflow:hidden;background:var(--card);}
-.seg button{
-  padding:8px 16px;font-size:13px;color:var(--ink-2);border-right:1px solid var(--line);
-  transition:background .14s ease,color .14s ease;
-}
-.seg button:last-child{border-right:0;}
-.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper);}
-.seg button:not([aria-pressed="true"]):hover{background:var(--sunk);color:var(--ink);}
+.switch{display:inline-flex;padding:3px;gap:3px;background:var(--black-3);border-radius:100px;}
+.switch button{padding:8px 18px;border-radius:100px;font-size:13px;font-weight:600;color:var(--dink-2);
+  transition:background .16s,color .16s;}
+.switch button[aria-pressed="true"]{background:var(--white);color:var(--ink);}
+.switch button:not([aria-pressed="true"]):hover{color:var(--dink);}
 
 .viewer{
   position:relative;aspect-ratio:1280/704;width:100%;overflow:hidden;background:#000;
-  border-radius:var(--radius);border:1px solid var(--line);touch-action:none;user-select:none;
+  border-radius:var(--r-lg);touch-action:none;user-select:none;
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.9),0 0 0 1px var(--dline);
 }
 .viewer video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;}
 .vlayer{position:absolute;inset:0;clip-path:inset(0 0 0 50%);will-change:clip-path;}
-.vhandle{
-  position:absolute;top:0;bottom:0;left:50%;width:1px;background:rgba(255,255,255,.9);
-  transform:translateX(-50%);cursor:ew-resize;z-index:5;
+.vhandle{position:absolute;top:0;bottom:0;left:50%;width:2px;background:#fff;
+  transform:translateX(-50%);cursor:ew-resize;z-index:5;}
+.vgrip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:42px;height:42px;border-radius:50%;background:#fff;
+  display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 4px 18px rgba(0,0,0,.5);}
+.vgrip i{width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;}
+.vgrip i:first-child{border-right:6px solid var(--ink);}
+.vgrip i:last-child{border-left:6px solid var(--ink);}
+.vtag{position:absolute;top:16px;z-index:4;font-size:10px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:#fff;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);
+  padding:6px 12px;border-radius:100px;}
+.vtag.l{left:16px;} .vtag.r{right:16px;}
+
+/* prompt bar — the product device */
+.pbar{
+  display:flex;align-items:center;gap:14px;margin-top:18px;padding:13px 13px 13px 18px;
+  background:var(--black-2);border:1px solid var(--dline);border-radius:var(--r-md);
 }
-.vgrip{
+.pbar .spark{width:17px;height:17px;flex:none;color:var(--red);}
+.pbar .txt{flex:1;font-size:14.5px;line-height:1.5;color:var(--dink-2);min-width:0;}
+.pbar .go{
+  flex:none;padding:9px 19px;border-radius:100px;background:var(--red);color:#fff;
+  font-size:13px;font-weight:600;pointer-events:none;
+}
+@media (max-width:700px){.pbar{flex-wrap:wrap;} .pbar .txt{flex-basis:100%;order:3;} }
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.chip{padding:8px 16px;border-radius:100px;font-size:13px;font-weight:500;
+  background:var(--black-3);color:var(--dink-2);transition:all .16s;}
+.chip:hover{color:var(--dink);background:#26262C;}
+.chip[aria-pressed="true"]{background:var(--white);color:var(--ink);}
+
+/* ===================== TEASER ===================== */
+.stage{padding:64px 0 46px;}
+.teaser{
+  position:relative;aspect-ratio:960/529;width:100%;overflow:hidden;background:#000;
+  border-radius:var(--r-lg);box-shadow:0 30px 80px -20px rgba(0,0,0,.9),0 0 0 1px var(--dline);
+  cursor:pointer;
+}
+.teaser video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.teaser-play{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.95);
-  display:flex;align-items:center;justify-content:center;gap:4px;
-  box-shadow:0 1px 6px rgba(0,0,0,.35);
+  width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.94);color:var(--ink);
+  display:flex;align-items:center;justify-content:center;transition:opacity .18s ease,transform .18s ease;
+  z-index:6;
 }
-.vgrip i{width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;}
-.vgrip i:first-child{border-right:5px solid #101216;}
-.vgrip i:last-child{border-left:5px solid #101216;}
-.vtag{
-  position:absolute;top:12px;z-index:4;font-family:var(--mono);font-size:10px;letter-spacing:.1em;
-  text-transform:uppercase;color:#fff;background:rgba(0,0,0,.55);padding:4px 8px;border-radius:3px;
+.teaser-play svg{width:26px;height:26px;margin-left:3px;}
+.teaser-play:hover{transform:translate(-50%,-50%) scale(1.06);}
+.teaser-play[hidden]{display:none;}
+.teaser-sound{
+  position:absolute;bottom:16px;right:16px;z-index:6;width:38px;height:38px;border-radius:50%;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(6px);color:#fff;display:flex;align-items:center;justify-content:center;
 }
-.vtag.l{left:12px;} .vtag.r{right:12px;}
+.teaser-sound svg{width:18px;height:18px;}
+.teaser-cap{margin-top:16px;font-size:13px;color:var(--dink-3);text-align:center;}
 
-.chips{display:flex;flex-wrap:wrap;gap:7px;}
-.chip{
-  font-size:12.5px;padding:7px 13px;border:1px solid var(--line-2);border-radius:20px;
-  background:var(--card);color:var(--ink-2);transition:all .14s ease;
-}
-.chip:hover{color:var(--ink);border-color:var(--ink-3);}
-.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;}
-.instr{
-  margin-top:14px;font-size:14px;color:var(--ink-2);line-height:1.65;max-width:82ch;
-  padding-left:14px;border-left:2px solid var(--line-2);
-}
+/* ===================== LIGHT SECTIONS ===================== */
+section.light{background:var(--white);padding:96px 0;}
+.head{margin-bottom:44px;}
+.head .kicker{display:block;margin-bottom:15px;}
+.head h2{font-size:clamp(30px,4.2vw,48px);letter-spacing:-.035em;}
+.head .dek{margin-top:18px;font-size:19px;line-height:1.5;color:var(--ink-2);max-width:34em;}
+.prose{font-size:18px;line-height:1.68;color:var(--ink-2);}
+.prose p + p{margin-top:1.1em;}
+.prose b{color:var(--ink);font-weight:650;}
 
-/* ================= STATS ================= */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
-  border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:36px;}
-.stat{background:var(--card);padding:20px 18px;}
-.stat b{display:block;font-size:28px;font-weight:640;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.1;}
-.stat b em{font-style:normal;font-size:15px;color:var(--ink-2);font-weight:500;letter-spacing:0;margin-left:2px;}
-.stat span{display:block;margin-top:8px;font-size:12.5px;color:var(--ink-2);line-height:1.45;}
-@media (max-width:820px){.stats{grid-template-columns:repeat(2,1fr);}}
-@media (max-width:440px){.stats{grid-template-columns:1fr;}}
+/* ===================== FIGURES ===================== */
+figure{margin:0;}
+.card{background:var(--off);border-radius:var(--r-lg);padding:26px;overflow-x:auto;}
+.card svg{display:block;min-width:640px;width:100%;height:auto;}
+figcaption{margin-top:16px;font-size:13.5px;line-height:1.6;color:var(--ink-2);max-width:64em;}
+figcaption b{color:var(--ink);font-weight:650;}
 
-/* ================= SECTIONS ================= */
-section{padding:80px 0;border-top:1px solid var(--line);}
-.shead{margin-bottom:36px;display:flex;flex-direction:column;gap:12px;}
-.shead h2{font-size:clamp(25px,3.6vw,34px);letter-spacing:-.028em;}
-.shead .dek{max-width:64ch;color:var(--ink-2);font-size:16px;}
-.two{display:grid;grid-template-columns:180px 1fr;gap:40px;}
-@media (max-width:760px){.two{grid-template-columns:1fr;gap:16px;}}
-.prose{max-width:66ch;font-size:16px;line-height:1.7;}
-.prose + .prose{margin-top:18px;}
+.m-block{margin-top:64px;}
+.m-block h3{font-size:25px;letter-spacing:-.026em;margin-bottom:11px;}
+.m-block .lede{font-size:17px;line-height:1.62;color:var(--ink-2);max-width:40em;margin-bottom:26px;}
 
-/* ================= METHOD ================= */
-.mgap{display:flex;flex-direction:column;gap:24px;}
-.msub{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
-.msub h3{font-size:19px;letter-spacing:-.02em;}
-.msub p{font-size:14.5px;color:var(--ink-2);max-width:70ch;}
+/* stages */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.step{background:var(--off);border-radius:var(--r-md);padding:22px 20px 24px;position:relative;}
+.step .idx{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--red);margin-bottom:14px;display:block;}
+.step h4{font-size:16.5px;margin-bottom:9px;letter-spacing:-.02em;}
+.step p{font-size:13.5px;line-height:1.55;color:var(--ink-2);}
+.step .cost{margin-top:16px;padding-top:12px;border-top:1px solid var(--line-2);
+  font-family:var(--mono);font-size:11px;color:var(--ink-3);}
+.step .cost b{color:var(--ink);font-weight:700;}
+@media (max-width:900px){.steps{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:540px){.steps{grid-template-columns:1fr;}}
 
-.svgbox{overflow-x:auto;}
-.svgbox svg{display:block;min-width:680px;width:100%;height:auto;color:var(--ink);}
+/* table */
+.tblwrap{overflow-x:auto;background:var(--off);border-radius:var(--r-lg);padding:8px 22px;}
+.tbl{width:100%;border-collapse:collapse;font-size:14px;}
+.tbl th,.tbl td{text-align:left;padding:13px 10px;border-bottom:1px solid var(--line-2);}
+.tbl thead th{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);}
+.tbl tbody tr:last-child td{border-bottom:0;}
+.tbl td:first-child{font-weight:600;color:var(--ink);white-space:nowrap;}
+.tbl .port{font-family:var(--mono);font-size:12px;color:var(--ink-2);white-space:nowrap;}
 
-.condtable{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:4px;}
-.condtable th,.condtable td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
-.condtable th{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:500;}
-.condtable tr:last-child td{border-bottom:0;}
-.condtable td:first-child{font-weight:560;white-space:nowrap;}
-.condtable .way{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);white-space:nowrap;}
-
-/* stages flow */
-.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;}
-.step{position:relative;padding:20px 20px 22px;border-right:1px solid var(--line);}
-.step:last-child{border-right:0;}
-.step .n{
-  display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;
-  background:var(--sunk);border:1px solid var(--line-2);font-family:var(--mono);font-size:10.5px;color:var(--ink-2);
-  margin-bottom:12px;
-}
-.step.final .n{background:var(--accent);border-color:var(--accent);color:#fff;}
-.step h4{font-size:14.5px;margin-bottom:7px;letter-spacing:-.015em;}
-.step p{font-size:13px;color:var(--ink-2);line-height:1.55;}
-.step .cost{
-  margin-top:12px;font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;color:var(--ink-3);
-  padding-top:9px;border-top:1px dashed var(--line-2);
-}
-.step .cost b{color:var(--accent);font-weight:600;}
-@media (max-width:900px){.flow{grid-template-columns:repeat(2,1fr);}
-  .step{border-bottom:1px solid var(--line);}
-  .step:nth-child(2n){border-right:0;}
-  .step:nth-child(n+3){border-bottom:0;}}
-@media (max-width:520px){.flow{grid-template-columns:1fr;}
-  .step{border-right:0;border-bottom:1px solid var(--line);}
-  .step:last-child{border-bottom:0;}}
-
-/* formula */
-.formula{
-  background:var(--sunk);border:1px solid var(--line);border-radius:var(--radius);
-  padding:28px 22px 22px;text-align:center;overflow-x:auto;
-}
-.eq{font-family:var(--mono);font-size:clamp(15px,2.4vw,21px);letter-spacing:-.01em;white-space:nowrap;display:inline-block;}
-.eq .t-s{color:var(--ink);} .eq .t-t{color:var(--accent);} .eq .t-a{color:var(--ink-2);}
-.eqlegend{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px;text-align:left;}
-.eqlegend div{font-size:12.5px;color:var(--ink-2);line-height:1.5;padding-top:11px;border-top:1px solid var(--line-2);}
-.eqlegend b{display:block;font-family:var(--mono);font-size:11.5px;color:var(--ink);margin-bottom:3px;}
-.eqlegend .k-t b{color:var(--accent);}
-@media (max-width:640px){.eqlegend{grid-template-columns:1fr;}}
-
-/* bars */
-.bars{display:flex;flex-direction:column;gap:2px;}
-.brow{display:grid;grid-template-columns:190px 1fr 76px;gap:14px;align-items:center;padding:5px 0;}
-.brow .bname{font-size:13px;color:var(--ink-2);text-align:right;line-height:1.3;}
-.brow.hi .bname{color:var(--ink);font-weight:560;}
-.btrack{display:block;height:22px;background:var(--sunk);border-radius:2px;overflow:hidden;}
-.bfill{display:block;width:0;height:100%;background:var(--bar);border-radius:0 4px 4px 0;transition:width .6s cubic-bezier(.22,.7,.3,1);}
-@media (prefers-reduced-motion:reduce){.bfill{transition:none;}}
-.brow.hi .bfill{background:var(--accent);}
-.brow.ref .bfill{background:var(--line-2);}
-.bval{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;color:var(--ink);}
-.brow.ref .bval{color:var(--ink-2);}
-@media (max-width:640px){
-  .brow{grid-template-columns:1fr;gap:4px;padding:9px 0;}
-  .brow .bname{text-align:left;}
-  .brow .bval{text-align:left;}
-}
-.bnote{margin-top:16px;font-size:12.5px;color:var(--ink-3);line-height:1.6;}
-
-/* ================= DEMOS ================= */
-.tabs{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--line);margin-bottom:28px;}
-.tab{
-  padding:11px 16px;font-size:13.5px;color:var(--ink-2);border-bottom:2px solid transparent;margin-bottom:-1px;
-}
-.tab:hover{color:var(--ink);}
-.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:560;}
+/* ===================== RESULTS (dark gallery) ===================== */
+.gallery{padding:96px 0;}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:34px;}
+.tab{padding:9px 18px;border-radius:100px;font-size:13.5px;font-weight:500;
+  color:var(--dink-2);background:var(--black-2);border:1px solid var(--dline);transition:all .16s;}
+.tab:hover{color:var(--dink);}
+.tab[aria-selected="true"]{background:var(--white);color:var(--ink);border-color:var(--white);font-weight:600;}
 .panel[hidden]{display:none;}
-.pintro{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:22px;}
-.pintro p{max-width:62ch;color:var(--ink-2);font-size:14.5px;}
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:26px;}
+@media (max-width:760px){.g2{grid-template-columns:1fr;}}
+.shot video,.shot img{width:100%;aspect-ratio:16/9;object-fit:cover;background:#000;
+  border-radius:var(--r-md);box-shadow:0 18px 44px -16px rgba(0,0,0,.85);}
+.shot figcaption{margin-top:15px;color:var(--dink-2);font-size:13.5px;}
+.shot .role{display:block;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dink-3);margin-bottom:8px;}
+.shot .fps{display:block;margin-top:9px;font-family:var(--mono);font-size:11px;color:var(--dink-3);}
+.shot.ours video,.shot.ours img{box-shadow:0 0 0 2px var(--red),0 18px 44px -16px rgba(0,0,0,.85);}
+.shot .role .tag-ours{color:var(--red);}
+.gnote{margin-top:30px;padding-top:18px;border-top:1px solid var(--dline);
+  font-size:13.5px;line-height:1.65;color:var(--dink-2);}
+.gnote b{color:var(--dink);font-weight:650;}
+.gquote{margin-top:24px;font-size:15.5px;line-height:1.6;color:var(--dink-2);
+  padding-left:18px;border-left:2px solid var(--red);max-width:56em;}
 
-.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
-@media (max-width:700px){.grid2{grid-template-columns:1fr;}}
-.vc{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--card);}
-.vc-m{position:relative;aspect-ratio:16/9;background:#000;}
-.vc-m video,.vc-m img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.vc-b{padding:14px 16px 15px;}
-.vc-b p{font-size:13.5px;line-height:1.55;color:var(--ink-2);}
-.vc-b .cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:7px;}
-.vc-b .fps{margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums;}
-.note{
-  margin-top:18px;padding:15px 17px;border:1px solid var(--line);border-left:2px solid var(--line-2);
-  border-radius:var(--radius);background:var(--card);font-size:13.5px;color:var(--ink-2);line-height:1.6;
+/* ---- carousel (T2V / RefV2V comparisons) ---- */
+.carousel{}
+.car-slides{position:relative;}
+.c-slide{display:none;}
+.c-slide[data-active="true"]{display:block;}
+.cmp2{display:grid;grid-template-columns:repeat(2,minmax(0,280px));gap:18px;margin-bottom:22px;}
+.cmp3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media (max-width:820px){.cmp3{grid-template-columns:1fr;}.cmp2{grid-template-columns:repeat(2,1fr);}}
+.car-prompt{margin-top:22px;font-size:15px;line-height:1.6;color:var(--dink-2);
+  padding-left:18px;border-left:2px solid var(--red);max-width:64em;}
+.car-nav{display:flex;align-items:center;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--dline);}
+.car-arrow{
+  flex:none;width:38px;height:38px;border-radius:50%;background:var(--black-2);border:1px solid var(--dline);
+  color:var(--dink);display:flex;align-items:center;justify-content:center;transition:all .16s;
 }
-.note b{color:var(--ink);font-weight:560;}
+.car-arrow:hover{background:var(--black-3);border-color:var(--dink-3);}
+.car-arrow svg{width:16px;height:16px;}
+.car-dots{display:flex;gap:7px;flex-wrap:wrap;}
+.car-dot{width:7px;height:7px;border-radius:50%;background:var(--dline);transition:all .18s;}
+.car-dot[aria-current="true"]{background:var(--red);width:20px;border-radius:4px;}
+.car-count{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--dink-3);}
 
-/* ================= CITE ================= */
-.citebar{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid var(--line);}
-.citebar span{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);}
-.copy{font-size:12.5px;padding:6px 12px;border:1px solid var(--line-2);border-radius:3px;color:var(--ink-2);}
-.copy:hover{color:var(--ink);border-color:var(--ink-3);}
-.copy.ok{color:var(--accent);border-color:var(--accent);}
-pre{margin:0;padding:20px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink);}
-.ack{margin-top:22px;font-size:13.5px;color:var(--ink-2);max-width:74ch;line-height:1.75;}
+/* ---- camera pose pairs (no comparison, just left/right) ---- */
+.campairs{display:flex;flex-direction:column;gap:40px;}
+.campair-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;}
+.campair-head .scene{font-size:16px;font-weight:650;color:var(--dink);letter-spacing:-.015em;}
+.campair-head .motion{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--red);padding:3px 10px;border:1px solid var(--dline);border-radius:100px;}
 
-/* ================= FOOTER ================= */
-footer{border-top:1px solid var(--line);padding:32px 0 44px;}
-.frow{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-start;}
-.frow p{font-size:13px;color:var(--ink-3);line-height:1.7;max-width:52ch;}
+/* ---- editing propagation flow ---- */
+.flow3{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:14px;align-items:center;}
+.flow3 .arrow{color:var(--dink-3);flex:none;}
+.flow3 .arrow svg{width:22px;height:22px;}
+@media (max-width:820px){.flow3{grid-template-columns:1fr;}.flow3 .arrow{transform:rotate(90deg);justify-self:center;}}
+
+/* ===================== CITE ===================== */
+.bibbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.bibbar span{font-family:var(--mono);font-size:12px;color:var(--ink-3);}
+.copy{padding:7px 16px;border:1px solid var(--line-2);border-radius:100px;font-size:12.5px;
+  font-weight:500;color:var(--ink-2);transition:all .16s;}
+.copy:hover{border-color:var(--ink);color:var(--ink);}
+.copy.ok{border-color:var(--red);color:var(--red);}
+pre{margin:0;padding:24px;background:var(--off);border-radius:var(--r-lg);overflow-x:auto;
+  font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--ink);}
+.ack{margin-top:34px;font-size:15px;line-height:1.7;color:var(--ink-2);}
+.ack .kicker{display:block;margin-bottom:11px;}
+
+footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
+.foot{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:12.5px;line-height:1.7;}
 </style>
 </head>
 <body>
 
-<div class="bar">
-  <div class="wrap bar-in">
-    <div class="mark">EditStream</div>
-    <nav class="navlinks" aria-label="Sections">
-      <a href="#abstract">Abstract</a>
-      <a href="#method">Method</a>
-      <a href="#speed">Speed</a>
-      <a href="#results">Results</a>
-      <a href="#cite">BibTeX</a>
-    </nav>
-    <div class="btns">
-      <button type="button" class="btn" aria-disabled="true">Tech Report <span class="pill">soon</span></button>
-    </div>
+<nav class="nav">
+  <div class="nav-in">
+    <span class="logo"><span class="glyph"></span>EditStream</span>
+    <ul>
+      <li><a href="#abstract">Abstract</a></li>
+      <li><a href="#method">Method</a></li>
+      <li><a href="#results">Results</a></li>
+      <li><a href="#bibtex">BibTeX</a></li>
+    </ul>
   </div>
-</div>
+</nav>
 
-<header class="hero">
-  <div class="wrap">
-    <div class="hero-grid">
-      <div class="venue"><span>Adobe Research</span><span>University of Rochester</span><span>Technical Report</span></div>
-      <h1>EditStream</h1>
-      <p class="tagline">A unified autoregressive framework for interactive video generation and editing &mdash; six tasks on one DiT backbone, distilled into a 4&#8209;step causal model that streams frames as it generates them.</p>
-      <p class="authors">
-        <b>Yuqian Zhou</b><sup>1,*,&dagger;</sup>&ensp;<b>Zhenghong Zhou</b><sup>1,2,*,&Dagger;</sup>&ensp;<b>Zongze Wu</b><sup>1</sup>&ensp;<b>Cameron Smith</b><sup>1</sup>&ensp;<b>Richard Zhang</b><sup>1</sup>&ensp;<b>Jiebo Luo</b><sup>2</sup>&ensp;<b>Eli Shechtman</b><sup>1</sup>&ensp;<b>Zhe Lin</b><sup>1</sup>
-        <span class="affil">1&ensp;Adobe Research&emsp;2&ensp;University of Rochester&emsp;*&ensp;first authors in random order&emsp;&Dagger;&ensp;work done during an internship at Adobe Research&emsp;&dagger;&ensp;project lead</span>
-      </p>
-      <div class="btns">
-        <button type="button" class="btn solid" aria-disabled="true" style="opacity:.55;">Tech Report <span class="pill" style="background:transparent;border-color:rgba(255,255,255,.3);color:inherit;">soon</span></button>
-        <button type="button" class="btn" aria-disabled="true">Code <span class="pill">soon</span></button>
-        <button type="button" class="btn" aria-disabled="true">Data &amp; Model <span class="pill">soon</span></button>
-      </div>
+<header class="dark hero">
+  <div class="wide hero-in">
+    <p class="kicker h-venue"><span class="mark">Adobe Research</span> &nbsp;·&nbsp; University of Rochester &nbsp;·&nbsp; Technical Report</p>
+    <h1 class="h-title">EditStream</h1>
+    <p class="h-sub">Generate, transform and edit video — in one model, as it streams.</p>
+    <p class="authors">
+      <b>Yuqian Zhou</b><sup>1,*,†</sup>&ensp;<b>Zhenghong Zhou</b><sup>1,2,*,‡</sup>&ensp;<b>Zongze Wu</b><sup>1</sup>&ensp;<b>Cameron Smith</b><sup>1</sup>&ensp;<b>Richard Zhang</b><sup>1</sup>&ensp;<b>Jiebo Luo</b><sup>2</sup>&ensp;<b>Eli Shechtman</b><sup>1</sup>&ensp;<b>Zhe Lin</b><sup>1</sup>
+      <span class="affil">1&ensp;Adobe Research&emsp;2&ensp;University of Rochester&emsp;*&ensp;first authors in random order&emsp;‡&ensp;work done during an internship at Adobe Research&emsp;†&ensp;project lead</span>
+    </p>
+    <div class="cta">
+      <span class="btn btn-primary" aria-disabled="true">Tech Report <span class="soon">soon</span></span>
+      <span class="btn btn-ghost" aria-disabled="true">Code <span class="soon">soon</span></span>
+      <span class="btn btn-ghost" aria-disabled="true">Data &amp; Model <span class="soon">soon</span></span>
     </div>
-
-    <!-- ============ INTERACTIVE STAGE ============ -->
-    <div class="stage">
-      <div class="mod">
-        <div class="mod-head">
-          <div>
-            <p class="label" style="margin-bottom:4px;">Streaming edit &middot; drag to compare</p>
-            <p style="font-size:14px;color:var(--ink-2);">One 30&nbsp;s take, edited in a single causal pass</p>
-          </div>
-          <div class="seg" role="group" aria-label="Choose source clip">
-            <button type="button" data-clip="A" aria-pressed="true">Source&nbsp;A</button>
-            <button type="button" data-clip="B" aria-pressed="false">Source&nbsp;B</button>
-          </div>
-        </div>
-        <div class="mod-body">
-          <div class="viewer" id="viewer">
-            <video id="vBase" autoplay muted loop playsinline aria-label="Original source clip"></video>
-            <div class="vlayer" id="vLayer"><video id="vEdit" autoplay muted loop playsinline aria-label="EditStream result"></video></div>
-            <div class="vhandle" id="vHandle"><div class="vgrip"><i></i><i></i></div></div>
-            <div class="vtag l">Source</div>
-            <div class="vtag r">EditStream</div>
-          </div>
-          <div class="chips" id="chips" style="margin-top:16px;" role="group" aria-label="Edit instruction"></div>
-          <p class="instr" id="instr"></p>
-        </div>
-      </div>
-    </div>
-
-    <div class="stats">
-      <div class="stat"><b>6<em>tasks</em></b><span>T2V, I2V, V2V, editing propagation, reference-guided editing, camera pose change &mdash; one backbone</span></div>
-      <div class="stat"><b>4<em>steps</em></b><span>Denoising steps at inference, guidance-free</span></div>
-      <div class="stat"><b>15.9<em>fps</em></b><span>720p throughput, single GPU, best measured config</span></div>
-      <div class="stat"><b>14&times;</b><span>Faster than the multi-step teacher it is distilled from</span></div>
+    <div class="specs">
+      <div><span class="v">6<em>tasks</em></span><p>Generation, transformation and editing on a single backbone</p></div>
+      <div><span class="v">4<em>steps</em></span><p>Denoising steps at inference, guidance-free</p></div>
+      <div><span class="v">16<em>fps</em></span><p>720p streaming throughput on a single GPU</p></div>
+      <div><span class="v">14<em>×</em></span><p>Faster than the multi-step teacher it is distilled from</p></div>
     </div>
   </div>
 </header>
 
-<section id="abstract">
-  <div class="wrap two">
-    <p class="label">Abstract</p>
-    <div>
-      <p class="prose">Interactive video generation and editing are becoming increasingly important for creative design. EditStream unifies multiple video creation and manipulation tasks within a single DiT-based model through flexible task-specific conditioning, and further transforms it into a fast, few-step autoregressive model for efficient streaming. It supports Text-to-Video, Image-to-Video, Video-to-Video, Editing Propagation, Reference-guided Video Editing, and Camera Pose Change &mdash; enabling flexible control over video generation, transformation, and editing within one system.</p>
-      <p class="prose">To make the unified model practical for interactive use, we develop a two-stage distillation approach that combines <b>Velocity Moment Matching (VMM)</b> with autoregressive unrolling. VMM matches conditional velocity moments at student-reached intermediate states to preserve generation quality and motion, while unrolling exposes the student to its own autoregressive predictions to improve temporal stability. Together, they alleviate common challenges in few-step autoregressive video generation &mdash; over-saturation, degraded motion, temporal instability, and complex training &mdash; and bridge high-quality diffusion-based video models with interactive creative workflows.</p>
+<section class="dark stage">
+  <div class="wide">
+    <figure class="teaser" id="teaserFig">
+      <video id="teaserVideo" poster="assets/img/teaser-poster.jpg" muted loop playsinline aria-label="EditStream showreel"></video>
+      <button type="button" class="teaser-play" id="teaserPlay" aria-label="Play">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button type="button" class="teaser-sound" id="teaserSound" aria-label="Turn sound on" aria-pressed="false">
+        <svg class="ico-off" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 10v4h4l5 5V5L7 10H3zm12.5 2a4.5 4.5 0 0 0-2.5-4.03v8.06A4.5 4.5 0 0 0 15.5 12zM19 12c0 1.77-.77 3.36-2 4.45l1.42 1.42A8.97 8.97 0 0 0 21 12c0-2.48-1-4.72-2.58-6.36L17 7.06A6.97 6.97 0 0 1 19 12z"/><line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" stroke-width="2"/></svg>
+        <svg class="ico-on" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" hidden><path d="M3 10v4h4l5 5V5L7 10H3zm12.5 2a4.5 4.5 0 0 0-2.5-4.03v8.06A4.5 4.5 0 0 0 15.5 12zM19 12c0 1.77-.77 3.36-2 4.45l1.42 1.42A8.97 8.97 0 0 0 21 12c0-2.48-1-4.72-2.58-6.36L17 7.06A6.97 6.97 0 0 1 19 12z"/></svg>
+      </button>
+    </figure>
+    <p class="teaser-cap">EditStream — Adobe Research. Bringing magic to filmmaking, bringing life to the world around us.</p>
+  </div>
+</section>
+
+<section class="light" id="abstract">
+  <div class="narrow">
+    <div class="head"><span class="kicker">Abstract</span></div>
+    <div class="prose">
+      <p>Interactive video generation and editing are becoming increasingly important for creative design. EditStream unifies multiple video creation and manipulation tasks within a single DiT-based model through flexible task-specific conditioning, and further transforms it into a fast, few-step autoregressive model for efficient streaming. It supports Text-to-Video, Image-to-Video, Video-to-Video, Editing Propagation, Reference-guided Video Editing, and Camera Pose Change — enabling flexible control over video generation, transformation, and editing within one system.</p>
+      <p>To make the unified model practical for interactive use, we develop a two-stage distillation approach that combines <b>Velocity Moment Matching (VMM)</b> with autoregressive unrolling. VMM matches conditional velocity moments at student-reached intermediate states to preserve generation quality and motion, while unrolling exposes the student to its own autoregressive predictions to improve temporal stability. Together, they alleviate common challenges in few-step autoregressive video generation — over-saturation, degraded motion, temporal instability, and complex training — and bridge high-quality diffusion-based video models with interactive creative workflows.</p>
     </div>
   </div>
 </section>
 
-<section id="method">
-  <div class="wrap">
-    <div class="shead">
-      <p class="label">Method</p>
-      <h2>How one model covers six tasks &mdash; and how it learns to stream</h2>
-      <p class="dek">Two ideas do the work: a conditioning interface that accepts every task through the same two ports, and a distillation recipe that reaches a causal few-step student without ever causalizing the teacher.</p>
+<section class="light" id="method" style="padding-top:20px;">
+  <div class="wide">
+    <div class="head" style="max-width:var(--text);">
+      <span class="kicker">Method</span>
+      <h2>One model for six tasks, taught to stream</h2>
+      <p class="dek">Two ideas carry the work: a conditioning interface that admits every task through the same two ports, and a distillation recipe that reaches a causal few-step student without ever causalizing the teacher.</p>
     </div>
 
-    <div class="mgap">
+    <!-- ============ FIG 1: CONDITIONING ============ -->
+    <div class="m-block" style="margin-top:0;">
+      <h3>Two ports, decided by pixel alignment</h3>
+      <p class="lede">Controls that share the output's pixel grid ride the channel axis — stacking them costs no attention length. Controls that do not are appended as tokens, where self-attention performs in-context transfer.</p>
+      <figure>
+        <div class="card">
+          <svg viewBox="0 0 1000 400" role="img" aria-label="Pixel-aligned controls (source video, mask, warped view) are stacked onto the noisy latent along the channel axis, leaving the token sequence length unchanged. Non-aligned controls (reference image, edited first frame) are appended to the token sequence, extending it. Both feed one shared DiT serving six tasks.">
+            <defs>
+              <linearGradient id="gLatent" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#3B3B46"/><stop offset="100%" stop-color="#16161B"/>
+              </linearGradient>
+              <linearGradient id="gCh1" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#7E8391"/><stop offset="100%" stop-color="#4E5260"/>
+              </linearGradient>
+              <linearGradient id="gCh2" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#9AA0AE"/><stop offset="100%" stop-color="#6A7080"/>
+              </linearGradient>
+              <linearGradient id="gCh3" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#B6BCC9"/><stop offset="100%" stop-color="#868C9A"/>
+              </linearGradient>
+              <linearGradient id="gRed" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#FF6152"/><stop offset="100%" stop-color="#FA0F00"/>
+              </linearGradient>
+              <linearGradient id="gDit" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#232329"/><stop offset="100%" stop-color="#0C0C0E"/>
+              </linearGradient>
+              <marker id="mA" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#8B8C95"/></marker>
+              <marker id="mR" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#FA0F00"/></marker>
+            </defs>
+            <g font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
 
-      <!-- 1. CONDITIONING -->
-      <div class="mod">
-        <div class="mod-head"><p class="label">01 &nbsp;Unified conditioning</p></div>
-        <div class="mod-body">
-          <div class="msub">
-            <h3>Two ports, decided by whether the signal is pixel-aligned</h3>
-            <p>Signals that share the output's pixel grid are stacked onto the noisy latent along the channel axis, so attention length never grows as controls are added. Signals that do not &mdash; a reference image, an edited first frame &mdash; are appended as extra tokens, where self-attention can do in-context transfer.</p>
-          </div>
-          <div class="svgbox">
-            <svg viewBox="0 0 900 300" role="img" aria-label="Diagram: pixel-aligned inputs such as source video, mask and warped view enter the shared DiT by channel concatenation, keeping sequence length constant; non-aligned inputs such as a reference image or edited first frame enter by token concatenation, extending the sequence.">
-              <defs>
-                <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                  <path d="M0,0 L10,5 L0,10 z" fill="currentColor"></path>
-                </marker>
-                <marker id="ara" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                  <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"></path>
-                </marker>
-              </defs>
-              <g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" fill="currentColor">
+              <!-- ---- CHANNEL PORT ---- -->
+              <text x="0" y="22" font-size="11" font-weight="700" letter-spacing="1.8" fill="#8B8C95">PIXEL-ALIGNED · CHANNEL PORT</text>
 
-                <!-- port A -->
-                <text x="16" y="44" font-size="10.5" letter-spacing="1.4" opacity=".5">PIXEL-ALIGNED</text>
-                <rect x="16" y="56" width="196" height="30" rx="3" fill="none" stroke="currentColor" opacity=".45"></rect>
-                <text x="30" y="75" font-size="11.5" opacity=".85">source video</text>
-                <rect x="16" y="92" width="196" height="30" rx="3" fill="none" stroke="currentColor" opacity=".45"></rect>
-                <text x="30" y="111" font-size="11.5" opacity=".85">edit / validity mask</text>
-                <rect x="16" y="128" width="196" height="30" rx="3" fill="none" stroke="currentColor" opacity=".45"></rect>
-                <text x="30" y="147" font-size="11.5" opacity=".85">camera-warped view</text>
-
-                <path d="M212,107 L322,107" fill="none" stroke="currentColor" opacity=".6" marker-end="url(#ar)"></path>
-                <text x="222" y="98" font-size="10.5" opacity=".75">concat on channels</text>
-                <text x="222" y="124" font-size="9.5" opacity=".45">sequence length unchanged</text>
-
-                <!-- port B -->
-                <text x="16" y="204" font-size="10.5" letter-spacing="1.4" opacity=".5" fill="var(--accent)">NOT PIXEL-ALIGNED</text>
-                <rect x="16" y="216" width="196" height="30" rx="3" fill="none" stroke="var(--accent)" opacity=".7"></rect>
-                <text x="30" y="235" font-size="11.5" opacity=".85">reference image</text>
-                <rect x="16" y="252" width="196" height="30" rx="3" fill="none" stroke="var(--accent)" opacity=".7"></rect>
-                <text x="30" y="271" font-size="11.5" opacity=".85">edited first frame</text>
-
-                <path d="M212,249 L322,175" fill="none" stroke="var(--accent)" opacity=".85" marker-end="url(#ara)"></path>
-                <text x="222" y="264" font-size="10.5" fill="var(--accent)">concat on tokens</text>
-                <text x="222" y="282" font-size="9.5" opacity=".45">sequence extended</text>
-
-                <!-- DiT -->
-                <rect x="326" y="70" width="200" height="130" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
-                <text x="346" y="112" font-size="14" font-weight="600" font-family="ui-sans-serif,system-ui,sans-serif">Shared DiT</text>
-                <text x="346" y="134" font-size="11" opacity=".6">Wan2.2-TI2V-5B</text>
-                <text x="346" y="152" font-size="11" opacity=".6">one set of weights</text>
-                <text x="346" y="176" font-size="10.5" opacity=".45">+ text prompt · task tag</text>
-
-                <path d="M526,135 L606,135" fill="none" stroke="currentColor" marker-end="url(#ar)"></path>
-
-                <!-- tasks -->
-                <rect x="610" y="52" width="274" height="166" rx="3" fill="none" stroke="currentColor" opacity=".45"></rect>
-                <text x="628" y="78" font-size="10.5" letter-spacing="1.4" opacity=".5">SIX TASKS</text>
-                <text x="628" y="102" font-size="11.5" opacity=".85">Text-to-Video</text>
-                <text x="628" y="122" font-size="11.5" opacity=".85">Image-to-Video</text>
-                <text x="628" y="142" font-size="11.5" opacity=".85">Video-to-Video editing</text>
-                <text x="628" y="162" font-size="11.5" opacity=".85">Editing propagation</text>
-                <text x="628" y="182" font-size="11.5" opacity=".85">Reference-guided editing</text>
-                <text x="628" y="202" font-size="11.5" opacity=".85">Camera pose change</text>
+              <!-- stacked planes (depth) -->
+              <g>
+                <rect x="14" y="44" width="150" height="86" rx="7" fill="url(#gCh3)"/>
+                <rect x="7"  y="56" width="150" height="86" rx="7" fill="url(#gCh2)"/>
+                <rect x="0"  y="68" width="150" height="86" rx="7" fill="url(#gCh1)"/>
+                <rect x="-7" y="80" width="150" height="86" rx="7" fill="url(#gLatent)"/>
+                <text x="8" y="112" font-size="12" font-weight="600" fill="#EDEDF2">noisy latent</text>
+                <text x="8" y="130" font-size="10.5" fill="#A8ACB8">+ source · mask · warp</text>
               </g>
-            </svg>
-          </div>
-          <table class="condtable">
-            <thead><tr><th>Task</th><th>Conditioning it uses</th><th>Port</th></tr></thead>
-            <tbody>
-              <tr><td>Text-to-Video</td><td>prompt only</td><td class="way">&mdash;</td></tr>
-              <tr><td>Image-to-Video</td><td>first frame locked at timestep&nbsp;0</td><td class="way">channel</td></tr>
-              <tr><td>Video-to-Video</td><td>source video</td><td class="way">channel</td></tr>
-              <tr><td>Editing propagation</td><td>source video + edited first frame</td><td class="way">channel + token</td></tr>
-              <tr><td>Reference-guided editing</td><td>source video + reference image</td><td class="way">channel + token</td></tr>
-              <tr><td>Camera pose change</td><td>warped view + validity mask</td><td class="way">channel</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+              <text x="0" y="188" font-size="11" fill="#5A5B63">stacked on the channel axis</text>
+              <text x="0" y="205" font-size="11" font-weight="600" fill="#0C0C0E">sequence length unchanged</text>
 
-      <!-- 2. PIPELINE -->
-      <div class="mod">
-        <div class="mod-head"><p class="label">02 &nbsp;Distillation pipeline</p></div>
-        <div class="mod-body" style="padding:0;">
-          <div style="padding:18px 18px 4px;">
-            <div class="msub">
-              <h3>Four stages from bidirectional teacher to streaming student</h3>
-              <p>The teacher's attention mask is never changed. Causality enters only through the noising pattern during adaptation, and through the student's own block-causal attention once distillation begins.</p>
-            </div>
-          </div>
-          <div class="flow">
-            <div class="step">
-              <span class="n">1</span>
-              <h4>Unified teacher</h4>
-              <p>Full multi-step bidirectional DiT trained across all six tasks with the conditioning interface above.</p>
-              <p class="cost">25&ndash;50 steps &middot; full attention</p>
-            </div>
-            <div class="step">
-              <span class="n">2</span>
-              <h4>Block-wise teacher forcing</h4>
-              <p>Fine-tuned on a mixture of full-sequence, first-block cold-start and prefix&ndash;suffix objectives: one 3-frame block is noised while its neighbours stay clean at timestep&nbsp;0.</p>
-              <p class="cost">still bidirectional</p>
-            </div>
-            <div class="step">
-              <span class="n">3</span>
-              <h4>VMM warm-up</h4>
-              <p>Single-block Velocity Moment Matching against the teacher-forced teacher reaches a usable causal student, with no precomputed ODE-trajectory dataset.</p>
-              <p class="cost"><b>200 iterations</b> &middot; vs &asymp;5,000 for ODE init</p>
-            </div>
-            <div class="step final">
-              <span class="n">4</span>
-              <h4>VMM-Forcing unrolling</h4>
-              <p>The student generates every block end-to-end through its own KV cache, exactly as at inference; the velocity correction is queried along that self-generated trajectory.</p>
-              <p class="cost"><b>800 iterations</b> &middot; 4-step causal student</p>
-            </div>
-          </div>
-        </div>
-      </div>
+              <path d="M168,120 C 232,120 232,175 296,175" fill="none" stroke="#8B8C95" stroke-width="1.6" marker-end="url(#mA)"/>
 
-      <!-- 3. VMM OBJECTIVE -->
-      <div class="mod">
-        <div class="mod-head"><p class="label">03 &nbsp;The VMM objective</p></div>
-        <div class="mod-body">
-          <div class="msub">
-            <h3>One loss for both stages</h3>
-            <p>The student is corrected by the velocity residual between the teacher and an auxiliary model that tracks the student's current distribution &mdash; evaluated at the state the student itself reached, not at a state sampled from the data. Warm-up and unrolling differ only in where that state comes from.</p>
-          </div>
-          <div class="formula">
-            <span class="eq"><span class="t-s">&#7776;</span> &nbsp;=&nbsp; <span class="t-s">v<sub>student</sub></span> &nbsp;+&nbsp; ( <span class="t-t">v<sub>teacher</sub></span> &nbsp;&minus;&nbsp; <span class="t-a">v<sub>auxiliary</sub></span> )</span>
-            <div class="eqlegend">
-              <div><b>v<sub>student</sub></b>The few-step student's own velocity prediction at its current intermediate state.</div>
-              <div class="k-t"><b>v<sub>teacher</sub></b>The frozen multi-step teacher, queried at that same state &mdash; the quality target.</div>
-              <div><b>v<sub>auxiliary</sub></b>A model trained online to track what the student currently produces; subtracting it leaves only the correction.</div>
-            </div>
-          </div>
-        </div>
-      </div>
+              <!-- ---- TOKEN PORT ---- -->
+              <text x="0" y="262" font-size="11" font-weight="700" letter-spacing="1.8" fill="#FA0F00">NOT PIXEL-ALIGNED · TOKEN PORT</text>
+              <g>
+                <rect x="0"  y="278" width="74" height="52" rx="6" fill="url(#gCh2)"/>
+                <text x="10" y="308" font-size="10.5" fill="#F2F3F6">reference</text>
+                <rect x="84" y="278" width="74" height="52" rx="6" fill="url(#gCh2)"/>
+                <text x="94" y="302" font-size="10.5" fill="#F2F3F6">edited</text>
+                <text x="94" y="316" font-size="10.5" fill="#F2F3F6">frame 0</text>
+              </g>
+              <text x="0" y="352" font-size="11" fill="#5A5B63">appended to the token sequence</text>
+              <text x="0" y="369" font-size="11" font-weight="600" fill="#FA0F00">sequence extended</text>
 
+              <path d="M168,304 C 232,304 232,215 296,215" fill="none" stroke="#FA0F00" stroke-width="1.6" marker-end="url(#mR)"/>
+
+              <!-- ---- TOKEN SEQUENCE STRIP ---- -->
+              <text x="300" y="128" font-size="11" font-weight="700" letter-spacing="1.6" fill="#8B8C95">TOKEN SEQUENCE</text>
+              <g>
+                <rect x="300" y="142" width="26" height="34" rx="4" fill="url(#gCh1)"/>
+                <rect x="330" y="142" width="26" height="34" rx="4" fill="url(#gCh1)"/>
+                <rect x="360" y="142" width="26" height="34" rx="4" fill="url(#gCh1)"/>
+                <rect x="390" y="142" width="26" height="34" rx="4" fill="url(#gCh1)"/>
+                <rect x="420" y="142" width="26" height="34" rx="4" fill="url(#gCh1)"/>
+                <text x="452" y="164" font-size="13" fill="#8B8C95">···</text>
+                <rect x="474" y="142" width="26" height="34" rx="4" fill="url(#gRed)"/>
+                <rect x="504" y="142" width="26" height="34" rx="4" fill="url(#gRed)"/>
+              </g>
+              <text x="300" y="196" font-size="10.5" fill="#8B8C95">video latents</text>
+              <text x="474" y="196" font-size="10.5" fill="#FA0F00">+ extra</text>
+
+              <path d="M544,159 L596,159" fill="none" stroke="#8B8C95" stroke-width="1.6" marker-end="url(#mA)"/>
+
+              <!-- ---- DiT ---- -->
+              <rect x="600" y="96" width="176" height="126" rx="14" fill="url(#gDit)"/>
+              <text x="624" y="140" font-size="18" font-weight="700" fill="#FFFFFF" letter-spacing="-.4">Shared DiT</text>
+              <text x="624" y="163" font-size="11.5" fill="#A0A1AA">Wan2.2-TI2V-5B</text>
+              <text x="624" y="181" font-size="11.5" fill="#A0A1AA">one set of weights</text>
+              <rect x="624" y="192" width="8" height="8" rx="2" fill="#FA0F00"/>
+              <text x="640" y="200" font-size="10.5" fill="#6E6F79">+ prompt · task tag</text>
+
+              <path d="M776,159 L824,159" fill="none" stroke="#8B8C95" stroke-width="1.6" marker-end="url(#mA)"/>
+
+              <!-- ---- TASKS ---- -->
+              <text x="832" y="60" font-size="11" font-weight="700" letter-spacing="1.6" fill="#8B8C95">SIX TASKS</text>
+              <g font-size="12.5" fill="#0C0C0E">
+                <text x="832" y="88">Text-to-Video</text>
+                <text x="832" y="114">Image-to-Video</text>
+                <text x="832" y="140">Video-to-Video</text>
+                <text x="832" y="166">Editing propagation</text>
+                <text x="832" y="192">Reference-guided edit</text>
+                <text x="832" y="218">Camera pose change</text>
+              </g>
+              <line x1="820" y1="70" x2="820" y2="226" stroke="#CFCFD6" stroke-width="1.5"/>
+            </g>
+          </svg>
+        </div>
+        <figcaption><b>Unified conditioning.</b> Every task reaches the same weights; only the port differs. Because pixel-aligned controls are stacked as channels rather than tokens, adding source video, a mask and a camera warp together leaves the attention cost identical to plain text-to-video.</figcaption>
+      </figure>
+    </div>
+
+    <div class="m-block">
+      <div class="tblwrap">
+        <table class="tbl">
+          <thead><tr><th>Task</th><th>Conditioning</th><th>Port</th></tr></thead>
+          <tbody>
+            <tr><td>Text-to-Video</td><td>prompt only</td><td class="port">—</td></tr>
+            <tr><td>Image-to-Video</td><td>first frame locked at timestep 0</td><td class="port">channel</td></tr>
+            <tr><td>Video-to-Video</td><td>source video</td><td class="port">channel</td></tr>
+            <tr><td>Editing propagation</td><td>source video + edited first frame</td><td class="port">channel + token</td></tr>
+            <tr><td>Reference-guided editing</td><td>source video + reference image</td><td class="port">channel + token</td></tr>
+            <tr><td>Camera pose change</td><td>warped view + validity mask</td><td class="port">channel</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ STAGES ============ -->
+    <div class="m-block">
+      <h3>Four stages to a streaming student</h3>
+      <p class="lede">Warm-up and unrolling optimise the same objective; they differ only in where the state being corrected comes from.</p>
+      <div class="steps">
+        <div class="step"><span class="idx">STAGE 01</span><h4>Unified teacher</h4>
+          <p>Full multi-step bidirectional DiT trained across all six tasks through the conditioning interface above.</p>
+          <p class="cost">25–50 steps · full attention</p></div>
+        <div class="step"><span class="idx">STAGE 02</span><h4>Block-wise teacher forcing</h4>
+          <p>A mixture of full-sequence, first-block cold-start and prefix–suffix objectives: one 3-frame block is noised while its neighbours stay clean at timestep 0.</p>
+          <p class="cost">still bidirectional</p></div>
+        <div class="step"><span class="idx">STAGE 03</span><h4>VMM warm-up</h4>
+          <p>Single-block Velocity Moment Matching against the teacher-forced teacher reaches a usable causal student — no precomputed ODE-trajectory dataset.</p>
+          <p class="cost"><b>200 iters</b> · vs ≈5,000 for ODE init</p></div>
+        <div class="step"><span class="idx">STAGE 04</span><h4>VMM-Forcing unrolling</h4>
+          <p>The student generates every block end-to-end through its own KV cache, exactly as at inference; the correction is queried along that self-generated trajectory.</p>
+          <p class="cost"><b>800 iters</b> · 4-step causal student</p></div>
+      </div>
+    </div>
+
+    <!-- ============ FIG 3: VMM ============ -->
+    <div class="m-block">
+      <h3>The correction, evaluated where the student actually is</h3>
+      <p class="lede">An auxiliary model is trained online to track what the student currently produces. Subtracting it from the teacher leaves a residual that points from the student's distribution toward the teacher's — and it is read off at the student's own intermediate state, not at a state drawn from data.</p>
+      <figure>
+        <div class="card">
+          <svg viewBox="0 0 1000 320" role="img" aria-label="A trajectory runs from noise to data. At the state the student reached, the teacher velocity and the auxiliary velocity are both evaluated; their difference is the correction added to the student's own velocity, steering the student's output toward the teacher's distribution.">
+            <defs>
+              <linearGradient id="traj" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#C4C7D0"/><stop offset="100%" stop-color="#4A4F5B"/>
+              </linearGradient>
+              <radialGradient id="noiseG" cx="50%" cy="50%">
+                <stop offset="0%" stop-color="#B6BCC9"/><stop offset="100%" stop-color="#E3E3E8"/>
+              </radialGradient>
+              <radialGradient id="dataG" cx="50%" cy="50%">
+                <stop offset="0%" stop-color="#3B3B46"/><stop offset="100%" stop-color="#0C0C0E"/>
+              </radialGradient>
+              <marker id="vT" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#FA0F00"/></marker>
+              <marker id="vA" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#8B8C95"/></marker>
+              <marker id="vC" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" fill="#0C0C0E"/></marker>
+            </defs>
+            <g font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+              <!-- endpoints -->
+              <circle cx="86" cy="176" r="52" fill="url(#noiseG)"/>
+              <text x="86" y="181" font-size="12.5" font-weight="600" fill="#5A5B63" text-anchor="middle">noise</text>
+              <circle cx="820" cy="150" r="52" fill="url(#dataG)"/>
+              <text x="820" y="155" font-size="12.5" font-weight="600" fill="#FFFFFF" text-anchor="middle">data</text>
+
+              <!-- trajectory -->
+              <path d="M138,172 C 300,120 340,232 452,196 C 580,155 660,150 768,150"
+                    fill="none" stroke="url(#traj)" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 0"/>
+              <text x="240" y="118" font-size="11.5" fill="#8B8C95">the student's own 4-step trajectory</text>
+
+              <!-- student state -->
+              <circle cx="452" cy="196" r="9" fill="#0C0C0E"/>
+              <circle cx="452" cy="196" r="17" fill="none" stroke="#0C0C0E" stroke-width="1.4" opacity=".35"/>
+              <text x="452" y="236" font-size="12.5" font-weight="650" fill="#0C0C0E" text-anchor="middle">student state</text>
+              <text x="452" y="253" font-size="11" fill="#8B8C95" text-anchor="middle">where the correction is read</text>
+
+              <!-- teacher vector -->
+              <path d="M452,196 L604,120" stroke="#FA0F00" stroke-width="2.6" marker-end="url(#vT)" fill="none"/>
+              <text x="614" y="112" font-size="13" font-weight="650" fill="#FA0F00">v teacher</text>
+              <text x="614" y="130" font-size="11" fill="#8B8C95">frozen · the quality target</text>
+
+              <!-- auxiliary vector -->
+              <path d="M452,196 L604,254" stroke="#8B8C95" stroke-width="2.6" marker-end="url(#vA)" fill="none"/>
+              <text x="614" y="256" font-size="13" font-weight="650" fill="#5A5B63">v auxiliary</text>
+              <text x="614" y="274" font-size="11" fill="#8B8C95">tracks the student online</text>
+
+              <!-- difference -->
+              <path d="M604,254 L604,132" stroke="#0C0C0E" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#vC)" fill="none"/>
+              <text x="518" y="196" font-size="12" font-weight="650" fill="#0C0C0E">residual</text>
+
+              <!-- equation plate -->
+              <g transform="translate(0,278)" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">
+                <rect x="-4" y="-24" width="452" height="38" rx="8" fill="#E3E3E8"/>
+                <text x="12"  y="2" font-size="16" fill="#0C0C0E">&#7776;</text>
+                <text x="30"  y="2" font-size="15" fill="#0C0C0E">=</text>
+                <text x="50"  y="2" font-size="15" fill="#0C0C0E">v</text>
+                <text x="60"  y="5" font-size="10.5" fill="#5A5B63">student</text>
+                <text x="112" y="2" font-size="15" fill="#0C0C0E">+  (</text>
+                <text x="148" y="2" font-size="15" fill="#FA0F00">v</text>
+                <text x="158" y="5" font-size="10.5" fill="#FA0F00">teacher</text>
+                <text x="208" y="2" font-size="15" fill="#0C0C0E">&#8722;</text>
+                <text x="230" y="2" font-size="15" fill="#5A5B63">v</text>
+                <text x="240" y="5" font-size="10.5" fill="#5A5B63">auxiliary</text>
+                <text x="300" y="2" font-size="15" fill="#0C0C0E">)</text>
+                <text x="326" y="2" font-size="11" fill="#8B8C95">evaluated at the student state</text>
+              </g>
+            </g>
+          </svg>
+        </div>
+        <figcaption><b>Velocity Moment Matching.</b> Because the residual is evaluated at a state the student itself reached, the objective never asks the student to imitate the teacher on inputs it would never encounter — which is the exposure gap that makes naive few-step distillation drift.</figcaption>
+      </figure>
     </div>
   </div>
 </section>
 
-<section id="speed">
-  <div class="wrap">
-    <div class="shead">
-      <p class="label">Speed</p>
-      <h2>Measured throughput</h2>
-      <p class="dek">Wall-clock numbers from this release's own profiling sweep &mdash; 141&nbsp;frames at 1280&times;704, single GPU, warm run, identical checkpoint across all rows.</p>
-    </div>
-    <div class="mod">
-      <div class="mod-head">
-        <p class="label">Frames per second &middot; higher is better</p>
-        <p class="label">1280&times;704 &middot; 141 frames</p>
-      </div>
-      <div class="mod-body">
-        <div class="bars">
-          <div class="brow ref"><span class="bname">Multi-step teacher<br><span style="font-size:11px;color:var(--ink-3);">50 steps, FA3 + compile</span></span><span class="btrack"><span class="bfill" data-w="7.1"></span></span><span class="bval">1.13</span></div>
-          <div class="brow"><span class="bname">4-step student<br><span style="font-size:11px;color:var(--ink-3);">SDPA baseline</span></span><span class="btrack"><span class="bfill" data-w="62.1"></span></span><span class="bval">9.85</span></div>
-          <div class="brow"><span class="bname">+ FlashAttention-3</span><span class="btrack"><span class="bfill" data-w="66.2"></span></span><span class="bval">10.50</span></div>
-          <div class="brow"><span class="bname">+ torch.compile</span><span class="btrack"><span class="bfill" data-w="67.6"></span></span><span class="bval">10.71</span></div>
-          <div class="brow hi"><span class="bname">+ pipelined VAE decode</span><span class="btrack"><span class="bfill" data-w="100"></span></span><span class="bval">15.85</span></div>
-        </div>
-        <p class="bnote">Average FPS over the whole call, warm run. The 4-step student reaches its first decoded frame in <b style="color:var(--ink);font-variant-numeric:tabular-nums;">0.9&nbsp;s</b> and holds <b style="color:var(--ink);font-variant-numeric:tabular-nums;">16.1&nbsp;fps</b> in steady state once the pipeline is full; the teacher must finish all 50 steps over the whole clip before any frame exists. On the V2V path the same pipelined configuration reaches 15.48&nbsp;fps against the teacher's 1.13.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="results">
-  <div class="wrap">
-    <div class="shead">
-      <p class="label">Results</p>
+<section class="dark gallery" id="results">
+  <div class="wide">
+    <div class="head" style="max-width:var(--text);">
+      <span class="kicker">Results</span>
       <h2>One checkpoint, every task</h2>
-      <p class="dek">All clips are output of the released 4&#8209;step causal student, generated in a single streaming pass and recompressed from native 1280&times;704 for the web.</p>
+      <p class="dek" style="color:var(--dink-2);">All clips are recompressed for the web from native resolution. Comparisons below are pulled directly from the release's own evaluation sweeps.</p>
     </div>
 
     <div class="tabs" role="tablist" aria-label="Task">
       <button type="button" class="tab" data-panel="p-t2v" role="tab" aria-selected="true">Text-to-Video</button>
       <button type="button" class="tab" data-panel="p-v2v" role="tab" aria-selected="false">Video-to-Video</button>
       <button type="button" class="tab" data-panel="p-ref" role="tab" aria-selected="false">Reference-guided</button>
-      <button type="button" class="tab" data-panel="p-cam" role="tab" aria-selected="false">Camera pose change</button>
+      <button type="button" class="tab" data-panel="p-cam" role="tab" aria-selected="false">Camera Pose Change</button>
+      <button type="button" class="tab" data-panel="p-genprop" role="tab" aria-selected="false">Editing Propagation</button>
     </div>
 
+    <!-- ============ T2V ============ -->
     <div class="panel" id="p-t2v">
-      <div class="pintro"><p>Generation from a prompt alone, with no source frame. Per-clip throughput is from the same profiling run as the chart above.</p></div>
-      <div class="grid2">
-        <div class="vc"><div class="vc-m"><video muted loop playsinline aria-label="Text-to-video, golden retriever puppy in a meadow" data-src="assets/video/t2v-puppy.mp4" poster="assets/img/t2v-puppy.jpg" preload="none"></video></div>
-          <div class="vc-b"><p class="cap">Text-to-Video</p><p>A golden retriever puppy playing in a sunlit meadow full of wildflowers, chasing a butterfly, soft depth of field, warm afternoon light, cinematic 35mm look.</p><p class="fps">11.91 fps steady-state</p></div></div>
-        <div class="vc"><div class="vc-m"><video muted loop playsinline aria-label="Text-to-video, humpback whale breaching" data-src="assets/video/t2v-whale.mp4" poster="assets/img/t2v-whale.jpg" preload="none"></video></div>
-          <div class="vc-b"><p class="cap">Text-to-Video</p><p>A humpback whale breaching out of a stormy ocean under dramatic gray clouds, powerful splash, seabirds scattering, wide cinematic shot.</p><p class="fps">11.62 fps steady-state</p></div></div>
-        <div class="vc"><div class="vc-m"><video muted loop playsinline aria-label="Text-to-video, futuristic city at night" data-src="assets/video/t2v-city.mp4" poster="assets/img/t2v-city.jpg" preload="none"></video></div>
-          <div class="vc-b"><p class="cap">Text-to-Video</p><p>Aerial drone shot of a dense futuristic city at night, neon signs reflecting off wet streets, flying cars weaving between skyscrapers, cyberpunk atmosphere.</p><p class="fps">11.64 fps steady-state</p></div></div>
-        <div class="vc"><div class="vc-m"><video muted loop playsinline aria-label="Text-to-video, hands kneading bread dough" data-src="assets/video/t2v-hands.mp4" poster="assets/img/t2v-hands.jpg" preload="none"></video></div>
-          <div class="vc-b"><p class="cap">Text-to-Video</p><p>Close-up of an elderly woman's weathered hands kneading bread dough in a rustic kitchen, flour dust floating in warm window light, shallow depth of field.</p><p class="fps">12.21 fps steady-state</p></div></div>
+      <p style="color:var(--dink-2);font-size:14.5px;margin-bottom:24px;max-width:60em;">Teacher (bidirectional, 25–50 steps) vs. a self-forcing baseline distilled from an ODE-pair init vs. our 4-step VMM-Forcing student — same prompt, same seed family, seven VBench-derived samples.</p>
+      <div class="carousel" id="t2vCarousel" data-autoplay="6000">
+        <div class="car-slides">
+      <div class="c-slide" data-active="true" data-idx="0">
+        <div class="cmp3">
+          <figure class="shot"><video muted loop playsinline aria-label="Teacher output, sample 31" data-src="assets/video/t2v31-teacher.mp4" poster="assets/img/t2v31-teacher.jpg"></video><figcaption><span class="role">Teacher</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="Self-forcing baseline output, sample 31" data-src="assets/video/t2v31-sf.mp4" poster="assets/img/t2v31-sf.jpg"></video><figcaption><span class="role">Self-Forcing (baseline)</span></figcaption></figure>
+          <figure class="shot ours"><video muted loop playsinline aria-label="EditStream VMM student output, sample 31" data-src="assets/video/t2v31-vmm.mp4" poster="assets/img/t2v31-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — VMM student (ours)</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">A beautifully animated silhouette scene depicts a lone wolf standing on a rocky hilltop, howling at the full moon, its expression filled with loneliness and longing. As the wolf's howl echoes across the night, it suddenly notices a distant silhouette of another wolf, signaling the beginning of its journey to rejoin its pack. The background is a detailed, moonlit landscape with rolling hills, dense forests, and a clear, starry sky. The animation has a smooth, fluid motion, capturing the natural movements of the wolves. The camera starts with a close-up of the lone wolf, then gradually pans out to show the entire scene, creating a sense of connection and movement.</p>
+      </div>
+      <div class="c-slide" data-idx="1">
+        <div class="cmp3">
+          <figure class="shot"><video muted loop playsinline aria-label="Teacher output, sample 32" data-src="assets/video/t2v32-teacher.mp4" poster="assets/img/t2v32-teacher.jpg"></video><figcaption><span class="role">Teacher</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="Self-forcing baseline output, sample 32" data-src="assets/video/t2v32-sf.mp4" poster="assets/img/t2v32-sf.jpg"></video><figcaption><span class="role">Self-Forcing (baseline)</span></figcaption></figure>
+          <figure class="shot ours"><video muted loop playsinline aria-label="EditStream VMM student output, sample 32" data-src="assets/video/t2v32-vmm.mp4" poster="assets/img/t2v32-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — VMM student (ours)</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">A surreal and dreamlike scene in the style of a cyberpunk film, depicting New York City submerged underwater, resembling the mythical city of Atlantis. Fish, whales, sea turtles, and sharks swim through the bustling streets, which now resemble underwater landscapes. The buildings are partially submerged, their facades covered in algae and marine growth. The water is murky and filled with sunlight filtering through from above, casting colorful hues. Pedestrians, now merfolk, move gracefully through the water, interacting with the aquatic creatures. The camera angle is from a low, sweeping shot, capturing the vast expanse of this submerged metropolis.</p>
+      </div>
+      <div class="c-slide" data-idx="2">
+        <div class="cmp3">
+          <figure class="shot"><video muted loop playsinline aria-label="Teacher output, sample 36" data-src="assets/video/t2v36-teacher.mp4" poster="assets/img/t2v36-teacher.jpg"></video><figcaption><span class="role">Teacher</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="Self-forcing baseline output, sample 36" data-src="assets/video/t2v36-sf.mp4" poster="assets/img/t2v36-sf.jpg"></video><figcaption><span class="role">Self-Forcing (baseline)</span></figcaption></figure>
+          <figure class="shot ours"><video muted loop playsinline aria-label="EditStream VMM student output, sample 36" data-src="assets/video/t2v36-vmm.mp4" poster="assets/img/t2v36-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — VMM student (ours)</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">A dynamic and explosive basketball moment captured in a high-energy action style, showcasing a basketball flying through the hoop with a burst of fireworks exploding behind it. The basketball is vividly depicted, with realistic textures and reflections. The hoop is made of shiny black metal, and the net is taut and stretched. Behind the hoop, a spectacular explosion of fireworks fills the sky, creating a dazzling display of colors and sparks. The camera angle is from the side, capturing the intense moment with a sense of movement and excitement. The background features blurred spectators and a sports arena with standing figures, adding to the lively atmosphere. A medium shot with a slight upward angle.</p>
+      </div>
+      <div class="c-slide" data-idx="3">
+        <div class="cmp3">
+          <figure class="shot"><video muted loop playsinline aria-label="Teacher output, sample 39" data-src="assets/video/t2v39-teacher.mp4" poster="assets/img/t2v39-teacher.jpg"></video><figcaption><span class="role">Teacher</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="Self-forcing baseline output, sample 39" data-src="assets/video/t2v39-sf.mp4" poster="assets/img/t2v39-sf.jpg"></video><figcaption><span class="role">Self-Forcing (baseline)</span></figcaption></figure>
+          <figure class="shot ours"><video muted loop playsinline aria-label="EditStream VMM student output, sample 39" data-src="assets/video/t2v39-vmm.mp4" poster="assets/img/t2v39-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — VMM student (ours)</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">A vibrant and lively scene in Burano, Italy, captured in a direct camera angle. The colorful buildings with their distinctive pastel hues dominate the background, creating a picturesque Venetian atmosphere. On the ground floor, a cute Dalmatian peers out through a window, its curious gaze catching the attention of passersby. Pedestrians and cyclists move gracefully along the canal streets in front of the buildings, adding to the bustling yet charming ambiance. The photo has a warm, nostalgic feel, with the Dalmatian standing out against the vivid backdrop. A medium shot capturing the street life and the building details.</p>
+      </div>
+      <div class="c-slide" data-idx="4">
+        <div class="cmp3">
+          <figure class="shot"><video muted loop playsinline aria-label="Teacher output, sample 40" data-src="assets/video/t2v40-teacher.mp4" poster="assets/img/t2v40-teacher.jpg"></video><figcaption><span class="role">Teacher</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="Self-forcing baseline output, sample 40" data-src="assets/video/t2v40-sf.mp4" poster="assets/img/t2v40-sf.jpg"></video><figcaption><span class="role">Self-Forcing (baseline)</span></figcaption></figure>
+          <figure class="shot ours"><video muted loop playsinline aria-label="EditStream VMM student output, sample 40" data-src="assets/video/t2v40-vmm.mp4" poster="assets/img/t2v40-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — VMM student (ours)</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">A scenic photograph capturing the moment a steam train departs from the Glenfinnan Viaduct, a historic railway bridge in Scotland. The train moves gracefully over the arch-covered viaduct, its smoke billowing into the air. The landscape is lush with greenery, and towering rocky mountains frame the scene, creating a picturesque backdrop. The sky is a clear, bright blue with the sun shining down, casting a warm glow on the train and the surrounding scenery. The viaduct itself is a striking feature, with intricate ironwork and a verdant setting. The photo has a classic, nostalgic feel, emphasizing the natural beauty and historical charm of the location. A wide-angle shot from a slightly elevated angle, capturing both the train and the expansive landscape.</p>
+      </div>
+      <div class="c-slide" data-idx="5">
+        <div class="cmp3">
+          <figure class="shot"><video muted loop playsinline aria-label="Teacher output, sample 42" data-src="assets/video/t2v42-teacher.mp4" poster="assets/img/t2v42-teacher.jpg"></video><figcaption><span class="role">Teacher</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="Self-forcing baseline output, sample 42" data-src="assets/video/t2v42-sf.mp4" poster="assets/img/t2v42-sf.jpg"></video><figcaption><span class="role">Self-Forcing (baseline)</span></figcaption></figure>
+          <figure class="shot ours"><video muted loop playsinline aria-label="EditStream VMM student output, sample 42" data-src="assets/video/t2v42-vmm.mp4" poster="assets/img/t2v42-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — VMM student (ours)</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">A close-up shot in the style of a nature documentary, featuring a chameleon with its body contorted in an intriguing pose, showcasing its striking color-changing capabilities. The chameleon's skin shifts between vibrant shades of green, blue, and yellow, with intricate patterns and textures. Its large, round eyes focus intently on the viewer, and its long, sticky tongue is partially extended, ready to catch prey. The background is blurred, emphasizing the chameleon's vivid colors and detailed patterns, with hints of a lush, tropical forest environment. The photo has a crisp, high-resolution quality, highlighting the reptile's natural movements and vibrant hues. A close-up shot from a slightly elevated angle.</p>
+      </div>
+      <div class="c-slide" data-idx="6">
+        <div class="cmp3">
+          <figure class="shot"><video muted loop playsinline aria-label="Teacher output, sample 51" data-src="assets/video/t2v51-teacher.mp4" poster="assets/img/t2v51-teacher.jpg"></video><figcaption><span class="role">Teacher</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="Self-forcing baseline output, sample 51" data-src="assets/video/t2v51-sf.mp4" poster="assets/img/t2v51-sf.jpg"></video><figcaption><span class="role">Self-Forcing (baseline)</span></figcaption></figure>
+          <figure class="shot ours"><video muted loop playsinline aria-label="EditStream VMM student output, sample 51" data-src="assets/video/t2v51-vmm.mp4" poster="assets/img/t2v51-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — VMM student (ours)</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">A vibrant and dynamic illustration in a cartoon style depicting a white cat sitting comfortably behind the wheel of a toy car, driving through a bustling downtown street. The cat has large, round eyes and a mischievous grin, with fur that appears soft and fluffy. Tall skyscrapers and a mix of people walking briskly fill the background, adding to the lively urban setting. The car's tires spin as it moves, and the wind flows through the cat's ears. The illustration has a bright color palette and a smooth, cartoony texture. The camera angle is slightly elevated, capturing both the cat and the vibrant street scene below.</p>
+      </div>
+        </div>
+        <div class="car-nav">
+          <button type="button" class="car-arrow prev" aria-label="Previous sample">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <div class="car-dots"></div>
+          <span class="car-count"></span>
+          <button type="button" class="car-arrow next" aria-label="Next sample">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
       </div>
     </div>
 
+    <!-- ============ V2V ============ -->
     <div class="panel" id="p-v2v" hidden>
-      <div class="pintro"><p>Instruction-driven scene edits on arbitrary source clips, with identity, pose and speaking performance preserved. Four further edits beyond those in the comparison viewer above.</p></div>
-      <div class="grid2">
-        <div class="vc"><div class="vc-m"><video muted loop playsinline aria-label="Video edit, Kyoto temple garden in snow" data-src="assets/video/v2v-kyoto.mp4" poster="assets/img/v2v-kyoto.jpg" preload="none"></video></div>
-          <div class="vc-b"><p class="cap">Video-to-Video</p><p>Restyle the scene as a Kyoto temple garden under falling snow: a weathered timber veranda, a snow-capped stone lantern, a frozen koi pond and a shoji screen glowing softly from within.</p></div></div>
-        <div class="vc"><div class="vc-m"><video muted loop playsinline aria-label="Video edit, steel foundry casting floor" data-src="assets/video/v2v-foundry.mp4" poster="assets/img/v2v-foundry.jpg" preload="none"></video></div>
-          <div class="vc-b"><p class="cap">Video-to-Video</p><p>Restage the interview on the casting floor of a steel foundry: a ladle tipping white-hot molten steel, showers of orange sparks, blinding glare throwing hard flickering shadows.</p></div></div>
-        <div class="vc"><div class="vc-m"><video muted loop playsinline aria-label="Video edit, terraced rice paddy at dawn" data-src="assets/video/v2v-paddy.mp4" poster="assets/img/v2v-paddy.jpg" preload="none"></video></div>
-          <div class="vc-b"><p class="cap">Video-to-Video</p><p>Restage the interview at the edge of a terraced rice paddy at dawn: flooded emerald paddies mirroring a pale pink sky, low ground mist, a wide conical straw hat tilted back from his face.</p></div></div>
-        <div class="vc"><div class="vc-m"><video muted loop playsinline aria-label="Video edit, Tokyo ramen stall at night" data-src="assets/video/v2v-ramen.mp4" poster="assets/img/v2v-ramen.jpg" preload="none"></video></div>
-          <div class="vc-b"><p class="cap">Video-to-Video</p><p>Restage the interview at a tiny Tokyo ramen stall on a rainy night: hanging red paper lanterns, a noren curtain, warm lantern glow cutting through steam with cool neon spill from outside.</p></div></div>
-      </div>
+      <p style="color:var(--dink-2);font-size:14.5px;margin-bottom:24px;max-width:60em;">A 30-second interview clip, edited end-to-end in a single causal streaming pass — one instruction rewrites the entire scene while identity, pose and delivery stay untouched. Drag the divider to compare source and edit frame-for-frame.</p>
+      <figure>
+        <div class="viewer" id="viewer">
+          <video id="vBase" muted loop playsinline aria-label="Original source clip"></video>
+          <div class="vlayer" id="vLayer"><video id="vEdit" muted loop playsinline aria-label="EditStream result"></video></div>
+          <div class="vhandle" id="vHandle"><span class="vgrip"><i></i><i></i></span></div>
+          <span class="vtag l">Source</span>
+          <span class="vtag r">EditStream</span>
+        </div>
+        <div class="pbar">
+          <svg class="spark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.6l2.1 6.3 6.3 2.1-6.3 2.1L12 18.4l-2.1-6.3L3.6 10l6.3-2.1z"/></svg>
+          <p class="txt" id="instr"></p>
+          <span class="go">Generate</span>
+        </div>
+        <div class="chips" id="chips" role="group" aria-label="Edit instruction"></div>
+        <div class="switch" style="margin-top:16px;" role="group" aria-label="Choose source clip">
+          <button type="button" data-clip="A" aria-pressed="true">Source A</button>
+          <button type="button" data-clip="B" aria-pressed="false">Source B</button>
+        </div>
+      </figure>
     </div>
 
+    <!-- ============ RefV2V ============ -->
     <div class="panel" id="p-ref" hidden>
-      <div class="pintro"><p>A subject from a reference image is transferred into the source video while the rest of the scene holds still &mdash; the token-concatenation port from the method section.</p></div>
-      <div class="grid2">
-        <div class="vc"><div class="vc-m"><video muted loop playsinline autoplay aria-label="Source video for reference-guided editing" data-src="assets/video/cond-ref-input.mp4" poster="assets/img/cond-ref-input.jpg" preload="none"></video></div><div class="vc-b"><p class="cap">Source video</p></div></div>
-        <div class="vc"><div class="vc-m"><img src="assets/img/cond-ref-image.jpg" alt="Reference image of a green Chesterfield sofa"></div><div class="vc-b"><p class="cap">Reference image &middot; token port</p></div></div>
+      <p style="color:var(--dink-2);font-size:14.5px;margin-bottom:24px;max-width:60em;">Teacher vs. KiwiEdit (showlab/Kiwi-Edit, stage3_refvid_only) vs. our VMM student, on RefVIE / RefEdit Bench — a reference image supplies the new subject or background through the token port, the source video supplies everything else through the channel port.</p>
+      <div class="carousel" id="refCarousel" data-autoplay="7000">
+        <div class="car-slides">
+      <div class="c-slide" data-active="true" data-idx="0">
+        <div class="cmp2">
+          <figure class="shot"><img src="assets/img/ref-bg09-reference.jpg" alt="Reference image, sample 1"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="Source video, sample 1" data-src="assets/video/ref-bg09-src.mp4" poster="assets/img/ref-bg09-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
+        </div>
+        <div class="cmp3">
+          <figure class="shot"><video muted loop playsinline aria-label="Teacher output, sample 1" data-src="assets/video/ref-bg09-teacher.mp4" poster="assets/img/ref-bg09-teacher.jpg"></video><figcaption><span class="role">Teacher</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="KiwiEdit output, sample 1" data-src="assets/video/ref-bg09-kiwi.mp4" poster="assets/img/ref-bg09-kiwi.jpg"></video><figcaption><span class="role">KiwiEdit</span></figcaption></figure>
+          <figure class="shot ours"><video muted loop playsinline aria-label="EditStream VMM output, sample 1" data-src="assets/video/ref-bg09-vmm.mp4" poster="assets/img/ref-bg09-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — VMM (ours)</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Replace the background with a Chinese ink painting, featuring a large golden mountain peak rising above swirling clouds, ensuring it appears in the same position and pose within the video scene.</p>
       </div>
-      <p class="instr" style="margin-top:18px;">Replace the sofa with a classic Chesterfield sofa upholstered in deep emerald green velvet. All other parts of the video must remain unchanged.</p>
-      <div class="note"><b>Conditioning inputs shown.</b> These two files are exactly what the reference-guided inference script consumes. The rendered result on RefVIE&nbsp;/&nbsp;RefEdit Bench is reported in the Tech Report; the checkpoint and script to reproduce it ship with the code release.</div>
+      <div class="c-slide" data-idx="1">
+        <div class="cmp2">
+          <figure class="shot"><img src="assets/img/ref-bg21-reference.jpg" alt="Reference image, sample 2"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="Source video, sample 2" data-src="assets/video/ref-bg21-src.mp4" poster="assets/img/ref-bg21-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
+        </div>
+        <div class="cmp3">
+          <figure class="shot"><video muted loop playsinline aria-label="Teacher output, sample 2" data-src="assets/video/ref-bg21-teacher.mp4" poster="assets/img/ref-bg21-teacher.jpg"></video><figcaption><span class="role">Teacher</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="KiwiEdit output, sample 2" data-src="assets/video/ref-bg21-kiwi.mp4" poster="assets/img/ref-bg21-kiwi.jpg"></video><figcaption><span class="role">KiwiEdit</span></figcaption></figure>
+          <figure class="shot ours"><video muted loop playsinline aria-label="EditStream VMM output, sample 2" data-src="assets/video/ref-bg21-vmm.mp4" poster="assets/img/ref-bg21-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — VMM (ours)</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Replace the background with a serene anime-style landscape, featuring a massive, fluffy cumulonimbus cloud towering over a windswept grassy hill, ensuring it appears in the same position and pose within the video scene.</p>
+      </div>
+      <div class="c-slide" data-idx="2">
+        <div class="cmp2">
+          <figure class="shot"><img src="assets/img/ref-bg24-reference.jpg" alt="Reference image, sample 3"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="Source video, sample 3" data-src="assets/video/ref-bg24-src.mp4" poster="assets/img/ref-bg24-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
+        </div>
+        <div class="cmp3">
+          <figure class="shot"><video muted loop playsinline aria-label="Teacher output, sample 3" data-src="assets/video/ref-bg24-teacher.mp4" poster="assets/img/ref-bg24-teacher.jpg"></video><figcaption><span class="role">Teacher</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="KiwiEdit output, sample 3" data-src="assets/video/ref-bg24-kiwi.mp4" poster="assets/img/ref-bg24-kiwi.jpg"></video><figcaption><span class="role">KiwiEdit</span></figcaption></figure>
+          <figure class="shot ours"><video muted loop playsinline aria-label="EditStream VMM output, sample 3" data-src="assets/video/ref-bg24-vmm.mp4" poster="assets/img/ref-bg24-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — VMM (ours)</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Replace the background with a Van Gogh style oil painting, featuring a swirling blue starry night sky and a dark cypress tree, ensuring it appears in the same position and pose within the video scene.</p>
+      </div>
+      <div class="c-slide" data-idx="3">
+        <div class="cmp2">
+          <figure class="shot"><img src="assets/img/ref-subj03-reference.jpg" alt="Reference image, sample 4"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="Source video, sample 4" data-src="assets/video/ref-subj03-src.mp4" poster="assets/img/ref-subj03-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
+        </div>
+        <div class="cmp3">
+          <figure class="shot"><video muted loop playsinline aria-label="Teacher output, sample 4" data-src="assets/video/ref-subj03-teacher.mp4" poster="assets/img/ref-subj03-teacher.jpg"></video><figcaption><span class="role">Teacher</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="KiwiEdit output, sample 4" data-src="assets/video/ref-subj03-kiwi.mp4" poster="assets/img/ref-subj03-kiwi.jpg"></video><figcaption><span class="role">KiwiEdit</span></figcaption></figure>
+          <figure class="shot ours"><video muted loop playsinline aria-label="EditStream VMM output, sample 4" data-src="assets/video/ref-subj03-vmm.mp4" poster="assets/img/ref-subj03-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — VMM (ours)</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Replace the sofa with a mid-century modern lounge chair with an ottoman. All other parts of the video must remain unchanged.</p>
+      </div>
+      <div class="c-slide" data-idx="4">
+        <div class="cmp2">
+          <figure class="shot"><img src="assets/img/ref-subj24-reference.jpg" alt="Reference image, sample 5"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="Source video, sample 5" data-src="assets/video/ref-subj24-src.mp4" poster="assets/img/ref-subj24-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
+        </div>
+        <div class="cmp3">
+          <figure class="shot"><video muted loop playsinline aria-label="Teacher output, sample 5" data-src="assets/video/ref-subj24-teacher.mp4" poster="assets/img/ref-subj24-teacher.jpg"></video><figcaption><span class="role">Teacher</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="KiwiEdit output, sample 5" data-src="assets/video/ref-subj24-kiwi.mp4" poster="assets/img/ref-subj24-kiwi.jpg"></video><figcaption><span class="role">KiwiEdit</span></figcaption></figure>
+          <figure class="shot ours"><video muted loop playsinline aria-label="EditStream VMM output, sample 5" data-src="assets/video/ref-subj24-vmm.mp4" poster="assets/img/ref-subj24-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — VMM (ours)</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Replace the man with a low-poly 3D model of a medieval knight. The character is composed entirely of sharp, faceted geometric triangles. Flat lighting, vibrant colors (blue tunic, silver armor). All other parts of the video must remain unchanged.</p>
+      </div>
+      <div class="c-slide" data-idx="5">
+        <div class="cmp2">
+          <figure class="shot"><img src="assets/img/ref-subj35-reference.jpg" alt="Reference image, sample 6"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="Source video, sample 6" data-src="assets/video/ref-subj35-src.mp4" poster="assets/img/ref-subj35-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
+        </div>
+        <div class="cmp3">
+          <figure class="shot"><video muted loop playsinline aria-label="Teacher output, sample 6" data-src="assets/video/ref-subj35-teacher.mp4" poster="assets/img/ref-subj35-teacher.jpg"></video><figcaption><span class="role">Teacher</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="KiwiEdit output, sample 6" data-src="assets/video/ref-subj35-kiwi.mp4" poster="assets/img/ref-subj35-kiwi.jpg"></video><figcaption><span class="role">KiwiEdit</span></figcaption></figure>
+          <figure class="shot ours"><video muted loop playsinline aria-label="EditStream VMM output, sample 6" data-src="assets/video/ref-subj35-vmm.mp4" poster="assets/img/ref-subj35-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — VMM (ours)</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Replace the girl's cloth with a matte black techwear tactical jacket. All other parts of the video must remain unchanged.</p>
+      </div>
+      <div class="c-slide" data-idx="6">
+        <div class="cmp2">
+          <figure class="shot"><img src="assets/img/ref-subj49-reference.jpg" alt="Reference image, sample 7"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="Source video, sample 7" data-src="assets/video/ref-subj49-src.mp4" poster="assets/img/ref-subj49-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
+        </div>
+        <div class="cmp3">
+          <figure class="shot"><video muted loop playsinline aria-label="Teacher output, sample 7" data-src="assets/video/ref-subj49-teacher.mp4" poster="assets/img/ref-subj49-teacher.jpg"></video><figcaption><span class="role">Teacher</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="KiwiEdit output, sample 7" data-src="assets/video/ref-subj49-kiwi.mp4" poster="assets/img/ref-subj49-kiwi.jpg"></video><figcaption><span class="role">KiwiEdit</span></figcaption></figure>
+          <figure class="shot ours"><video muted loop playsinline aria-label="EditStream VMM output, sample 7" data-src="assets/video/ref-subj49-vmm.mp4" poster="assets/img/ref-subj49-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — VMM (ours)</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Add a small handmade amigurumi crochet cactus sitting in a beige yarn pot next to the window. All other parts of the video must remain unchanged.</p>
+      </div>
+      <div class="c-slide" data-idx="7">
+        <div class="cmp2">
+          <figure class="shot"><img src="assets/img/ref-subj80-reference.jpg" alt="Reference image, sample 8"><figcaption><span class="role">Reference image</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="Source video, sample 8" data-src="assets/video/ref-subj80-src.mp4" poster="assets/img/ref-subj80-src.jpg"></video><figcaption><span class="role">Source video</span></figcaption></figure>
+        </div>
+        <div class="cmp3">
+          <figure class="shot"><video muted loop playsinline aria-label="Teacher output, sample 8" data-src="assets/video/ref-subj80-teacher.mp4" poster="assets/img/ref-subj80-teacher.jpg"></video><figcaption><span class="role">Teacher</span></figcaption></figure>
+          <figure class="shot"><video muted loop playsinline aria-label="KiwiEdit output, sample 8" data-src="assets/video/ref-subj80-kiwi.mp4" poster="assets/img/ref-subj80-kiwi.jpg"></video><figcaption><span class="role">KiwiEdit</span></figcaption></figure>
+          <figure class="shot ours"><video muted loop playsinline aria-label="EditStream VMM output, sample 8" data-src="assets/video/ref-subj80-vmm.mp4" poster="assets/img/ref-subj80-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — VMM (ours)</span></figcaption></figure>
+        </div>
+        <p class="car-prompt">Replace the man's outfit suit with a festive 'ugly' Christmas sweater. All other parts of the video must remain unchanged.</p>
+      </div>
+        </div>
+        <div class="car-nav">
+          <button type="button" class="car-arrow prev" aria-label="Previous sample">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <div class="car-dots"></div>
+          <span class="car-count"></span>
+          <button type="button" class="car-arrow next" aria-label="Next sample">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
     </div>
 
+    <!-- ============ Camera Pose Change ============ -->
     <div class="panel" id="p-cam" hidden>
-      <div class="pintro"><p>The source is re-projected along a new camera trajectory, leaving holes where the new viewpoint reveals previously occluded content. A validity mask tells the DiT which pixels are real and which must be synthesised.</p></div>
-      <div class="grid2">
-        <div class="vc"><div class="vc-m"><video muted loop playsinline autoplay aria-label="Camera-warped input with disoccluded holes" data-src="assets/video/cond-cam-input.mp4" poster="assets/img/cond-cam-input.jpg" preload="none"></video></div><div class="vc-b"><p class="cap">Warped view &middot; holes = disoccluded</p></div></div>
-        <div class="vc"><div class="vc-m"><video muted loop playsinline autoplay aria-label="Validity mask for the warped input" data-src="assets/video/cond-cam-mask.mp4" poster="assets/img/cond-cam-mask.jpg" preload="none"></video></div><div class="vc-b"><p class="cap">Validity mask &middot; channel port</p></div></div>
+      <p style="color:var(--dink-2);font-size:14.5px;margin-bottom:24px;max-width:60em;">ReShoot: the same DAVIS clip, replayed along a new camera trajectory — an orbit around the subject, or a dolly pushing in — reconstructed from a single monocular source video.</p>
+      <div class="campairs">
+    <div>
+      <div class="campair-head"><span class="scene">Camel</span><span class="motion">Orbit right</span></div>
+      <div class="g2">
+        <figure class="shot"><video muted loop playsinline autoplay aria-label="Camel, original source" data-src="assets/video/cam-camel-orbit-orig.mp4" poster="assets/img/cam-camel-orbit-orig.jpg"></video><figcaption><span class="role">Source</span></figcaption></figure>
+        <figure class="shot ours"><video muted loop playsinline autoplay aria-label="Camel, EditStream reshoot result" data-src="assets/video/cam-camel-orbit-vmm.mp4" poster="assets/img/cam-camel-orbit-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
       </div>
-      <p class="instr" style="margin-top:18px;">A brown bear is walking on rocks in a zoo. Camera follows a smooth s-curve, gently swaying side-to-side while pushing in.</p>
-      <div class="note"><b>Conditioning inputs shown.</b> Both signals enter through the channel port, so sequence length is identical to plain V2V. The rendered result on the V2VCameraPose benchmark is reported in the Tech Report.</div>
+    </div>
+    <div>
+      <div class="campair-head"><span class="scene">Black swan</span><span class="motion">Orbit right</span></div>
+      <div class="g2">
+        <figure class="shot"><video muted loop playsinline autoplay aria-label="Black swan, original source" data-src="assets/video/cam-blackswan-orbit-orig.mp4" poster="assets/img/cam-blackswan-orbit-orig.jpg"></video><figcaption><span class="role">Source</span></figcaption></figure>
+        <figure class="shot ours"><video muted loop playsinline autoplay aria-label="Black swan, EditStream reshoot result" data-src="assets/video/cam-blackswan-orbit-vmm.mp4" poster="assets/img/cam-blackswan-orbit-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+      </div>
+    </div>
+    <div>
+      <div class="campair-head"><span class="scene">BMX trees</span><span class="motion">Dolly in</span></div>
+      <div class="g2">
+        <figure class="shot"><video muted loop playsinline autoplay aria-label="BMX trees, original source" data-src="assets/video/cam-bmxtrees-zoom-orig.mp4" poster="assets/img/cam-bmxtrees-zoom-orig.jpg"></video><figcaption><span class="role">Source</span></figcaption></figure>
+        <figure class="shot ours"><video muted loop playsinline autoplay aria-label="BMX trees, EditStream reshoot result" data-src="assets/video/cam-bmxtrees-zoom-vmm.mp4" poster="assets/img/cam-bmxtrees-zoom-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+      </div>
+    </div>
+    <div>
+      <div class="campair-head"><span class="scene">Elephant</span><span class="motion">Dolly in</span></div>
+      <div class="g2">
+        <figure class="shot"><video muted loop playsinline autoplay aria-label="Elephant, original source" data-src="assets/video/cam-elephant-zoom-orig.mp4" poster="assets/img/cam-elephant-zoom-orig.jpg"></video><figcaption><span class="role">Source</span></figcaption></figure>
+        <figure class="shot ours"><video muted loop playsinline autoplay aria-label="Elephant, EditStream reshoot result" data-src="assets/video/cam-elephant-zoom-vmm.mp4" poster="assets/img/cam-elephant-zoom-vmm.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — new camera path</span></figcaption></figure>
+      </div>
+    </div>
+      </div>
+    </div>
+
+    <!-- ============ Editing Propagation ============ -->
+    <div class="panel" id="p-genprop" hidden>
+      <p style="color:var(--dink-2);font-size:14.5px;margin-bottom:24px;max-width:60em;">GenPropBench, prompt-guided: an edit is made to the first frame, then propagated through the entire clip in one streaming pass.</p>
+      <div class="flow3">
+        <figure class="shot"><video muted loop playsinline autoplay aria-label="Source video" data-src="assets/video/genprop10-src.mp4" poster="assets/img/genprop10-src.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
+        <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <figure class="shot"><img src="assets/img/genprop10-gen.jpg" alt="Edited first frame"><figcaption><span class="role">Edited first frame</span></figcaption></figure>
+        <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <figure class="shot ours"><video muted loop playsinline autoplay aria-label="Propagated result" data-src="assets/video/genprop10-gen.mp4" poster="assets/img/genprop10-gen.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — propagated</span></figcaption></figure>
+      </div>
+      <p class="car-prompt">Change aspect ratio from vertical to widescreen, revealing more landscape on both sides.</p>
     </div>
   </div>
 </section>
 
-<section id="cite">
-  <div class="wrap">
-    <div class="shead">
-      <p class="label">BibTeX</p>
-      <h2>Cite this work</h2>
-    </div>
-    <div class="mod">
-      <div class="citebar"><span>editstream.bib</span><button type="button" class="copy" id="copyBtn">Copy</button></div>
-      <pre id="bib">@techreport{zhou2026editstream,
-  title  = {EditStream: A Unified Autoregressive Framework for
-            Interactive Video Generation and Editing},
+<section class="light" id="bibtex">
+  <div class="narrow">
+    <div class="head"><span class="kicker">Citation</span></div>
+    <div class="bibbar"><span>editstream.bib</span><button type="button" class="copy" id="copyBtn">Copy</button></div>
+    <pre id="bib">@techreport{zhou2026editstream,
+  title  = {EditStream: A Unified Autoregressive Framework
+            for Interactive Video Generation and Editing},
   author = {Zhou, Yuqian and Zhou, Zhenghong and Wu, Zongze and
             Smith, Cameron and Zhang, Richard and Luo, Jiebo and
             Shechtman, Eli and Lin, Zhe},
   institution = {Adobe Research},
   year   = {2026}
 }</pre>
+    <div class="ack"><span class="kicker">Acknowledgements</span>
+      Thanks to Kai Zhang, Zhonghao Wang, and Yuchen Liu for their contributions to the VMM algorithm, and to Hailin Jin, Sylvain Paris, John Yang, Cynthia Lu, Jianming Zhang, Ashwin Ramesh, and Yiru Shen for discussions, guidance, and support throughout the development of the distillation framework.
     </div>
-    <p class="ack">Thanks to Kai Zhang, Zhonghao Wang, and Yuchen Liu for their contributions to the VMM algorithm, and to Hailin Jin, Sylvain Paris, John Yang, Cynthia Lu, Jianming Zhang, Ashwin Ramesh, and Yiru Shen for discussions, guidance, and support throughout the development of the distillation framework.</p>
   </div>
 </section>
 
 <footer>
-  <div class="wrap frow">
-    <p><b style="color:var(--ink-2);">EditStream</b> &middot; Adobe Research &amp; University of Rochester<br>Every clip on this page is output of the released 4-step causal student.</p>
-    <div class="btns">
-      <button type="button" class="btn" aria-disabled="true">Tech Report <span class="pill">soon</span></button>
-      <button type="button" class="btn" aria-disabled="true">Code <span class="pill">soon</span></button>
-      <button type="button" class="btn" aria-disabled="true">Data &amp; Model <span class="pill">soon</span></button>
-    </div>
+  <div class="wide foot">
+    <span>EditStream · Adobe Research &amp; University of Rochester</span>
+    <span>Every clip on this page is output of the released 4-step causal student.</span>
   </div>
 </footer>
 
@@ -743,19 +996,12 @@ footer{border-top:1px solid var(--line);padding:32px 0 44px;}
 <script>
 (function(){
   "use strict";
-  var DATA = JSON.parse(document.getElementById("clipdata").textContent);
-
-  /* ---------- comparison viewer ---------- */
-  var viewer=document.getElementById("viewer"),
-      layer=document.getElementById("vLayer"),
-      handle=document.getElementById("vHandle"),
-      vBase=document.getElementById("vBase"),
-      vEdit=document.getElementById("vEdit"),
-      chips=document.getElementById("chips"),
-      instr=document.getElementById("instr"),
-      segBtns=document.querySelectorAll(".seg button");
-
-  var current="A", currentEdit=0;
+  var DATA=JSON.parse(document.getElementById("clipdata").textContent);
+  var viewer=document.getElementById("viewer"),layer=document.getElementById("vLayer"),
+      handle=document.getElementById("vHandle"),vBase=document.getElementById("vBase"),
+      vEdit=document.getElementById("vEdit"),chips=document.getElementById("chips"),
+      instr=document.getElementById("instr"),segBtns=document.querySelectorAll(".switch button");
+  var current="A",currentEdit=0;
 
   function setSplit(p){
     p=Math.max(0,Math.min(100,p));
@@ -767,9 +1013,7 @@ footer{border-top:1px solid var(--line);padding:32px 0 44px;}
   function pct(x){var r=viewer.getBoundingClientRect();return ((x-r.left)/r.width)*100;}
   function down(e){dragging=true;setSplit(pct(e.clientX));e.preventDefault();}
   handle.addEventListener("pointerdown",down);
-  viewer.addEventListener("pointerdown",function(e){
-    if(e.target===handle||handle.contains(e.target))return; down(e);
-  });
+  viewer.addEventListener("pointerdown",function(e){if(e.target===handle||handle.contains(e.target))return;down(e);});
   window.addEventListener("pointermove",function(e){if(dragging)setSplit(pct(e.clientX));});
   window.addEventListener("pointerup",function(){dragging=false;});
   handle.setAttribute("tabindex","0");
@@ -785,96 +1029,174 @@ footer{border-top:1px solid var(--line);padding:32px 0 44px;}
   setSplit(50);
 
   function renderChips(){
-    var edits=DATA[current].edits;
     chips.innerHTML="";
-    edits.forEach(function(ed,i){
+    DATA[current].edits.forEach(function(ed,i){
       var b=document.createElement("button");
-      b.type="button"; b.className="chip"; b.textContent=ed.name;
-      b.setAttribute("aria-pressed", i===currentEdit ? "true":"false");
-      b.addEventListener("click",function(){ selectEdit(i); });
+      b.type="button";b.className="chip";b.textContent=ed.name;
+      b.setAttribute("aria-pressed",i===currentEdit?"true":"false");
+      b.addEventListener("click",function(){selectEdit(i);});
       chips.appendChild(b);
     });
   }
   function selectEdit(i){
     currentEdit=i;
     var ed=DATA[current].edits[i];
-    vEdit.poster=ed.poster||"";
-    vEdit.src=ed.src;
-    vEdit.currentTime=0;
+    if(ed.poster) vEdit.poster=ed.poster;
+    vEdit.src=ed.src;vEdit.currentTime=0;
     vEdit.play().catch(function(){});
-    if(vBase.readyState>=1){ vBase.currentTime=0; }
+    if(vBase.readyState>=1) vBase.currentTime=0;
     instr.textContent=ed.text;
     Array.prototype.forEach.call(chips.children,function(c,ci){
-      c.setAttribute("aria-pressed", ci===i ? "true":"false");
+      c.setAttribute("aria-pressed",ci===i?"true":"false");
     });
   }
   function selectClip(key){
-    current=key; currentEdit=0;
-    vBase.poster=DATA[key].poster||"";
+    current=key;currentEdit=0;
+    if(DATA[key].poster) vBase.poster=DATA[key].poster;
     vBase.src=DATA[key].source;
     vBase.play().catch(function(){});
-    renderChips();
-    selectEdit(0);
-    segBtns.forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.clip===key ? "true":"false"); });
+    renderChips();selectEdit(0);
+    segBtns.forEach(function(b){b.setAttribute("aria-pressed",b.dataset.clip===key?"true":"false");});
   }
-  segBtns.forEach(function(b){ b.addEventListener("click",function(){ selectClip(b.dataset.clip); }); });
+  segBtns.forEach(function(b){b.addEventListener("click",function(){selectClip(b.dataset.clip);});});
   selectClip("A");
 
-  /* keep the two videos roughly in step */
   setInterval(function(){
-    if(vEdit.readyState>=2 && vBase.readyState>=2 && !vBase.paused){
-      if(Math.abs(vEdit.currentTime-vBase.currentTime)>0.25){ vEdit.currentTime=vBase.currentTime; }
+    if(vEdit.readyState>=2&&vBase.readyState>=2&&!vBase.paused){
+      if(Math.abs(vEdit.currentTime-vBase.currentTime)>0.25) vEdit.currentTime=vBase.currentTime;
     }
   },500);
 
-  /* ---------- tabs ---------- */
-  var tabs=document.querySelectorAll(".tab"), panels=document.querySelectorAll(".panel");
+  var tabs=document.querySelectorAll(".tab"),panels=document.querySelectorAll(".panel");
   tabs.forEach(function(t){
     t.addEventListener("click",function(){
       tabs.forEach(function(x){x.setAttribute("aria-selected","false");});
       t.setAttribute("aria-selected","true");
-      panels.forEach(function(p){ p.hidden = p.id!==t.dataset.panel; });
+      var target=t.dataset.panel;
+      panels.forEach(function(p){
+        var showing=p.id===target;
+        if(p.id==="p-v2v"){ if(showing){vBase.play().catch(function(){});vEdit.play().catch(function(){});} else {vBase.pause();vEdit.pause();} }
+        p.hidden=!showing;
+      });
     });
   });
 
-  /* ---------- lazy video sources + viewport autoplay ---------- */
-  var lazy=document.querySelectorAll("video[data-src]");
-  function hydrate(v){ if(!v.src){ v.src=v.dataset.src; } }
+  function hydrate(v){if(!v.src&&v.dataset.src)v.src=v.dataset.src;}
+
+  /* global lazy-load + viewport autoplay, excluding carousel slides (self-managed below) */
+  var lazy=Array.prototype.filter.call(document.querySelectorAll("video[data-src]"),function(v){return !v.closest(".c-slide");});
   if("IntersectionObserver" in window){
-    var io=new IntersectionObserver(function(entries){
-      entries.forEach(function(en){
-        var v=en.target;
-        if(en.isIntersecting){ hydrate(v); v.play().catch(function(){}); }
-        else { v.pause(); }
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        var v=e.target;
+        if(e.isIntersecting){hydrate(v);v.play().catch(function(){});}else{v.pause();}
       });
-    },{threshold:0.2});
-    lazy.forEach(function(v){ io.observe(v); });
+    },{threshold:.2});
+    lazy.forEach(function(v){io.observe(v);});
+  }else{lazy.forEach(function(v){hydrate(v);v.play().catch(function(){});});}
+
+  /* ---------- carousels (T2V / RefV2V) ---------- */
+  function initCarousel(car){
+    var slides=Array.prototype.slice.call(car.querySelectorAll(".c-slide"));
+    var dotsWrap=car.querySelector(".car-dots"),count=car.querySelector(".car-count");
+    var prevBtn=car.querySelector(".car-arrow.prev"),nextBtn=car.querySelector(".car-arrow.next");
+    var idx=0,timer=null,resumeTimer=null;
+    var delay=parseInt(car.dataset.autoplay,10)||6000;
+
+    slides.forEach(function(sl,i){
+      var d=document.createElement("button");
+      d.type="button";d.className="car-dot";d.setAttribute("aria-label","Go to sample "+(i+1));
+      d.addEventListener("click",function(){go(i,true);});
+      dotsWrap.appendChild(d);
+    });
+    var dots=Array.prototype.slice.call(dotsWrap.children);
+
+    function slideVideos(sl){return sl.querySelectorAll("video");}
+    function activate(i){
+      slides.forEach(function(sl,si){
+        var on=si===i;
+        sl.setAttribute("data-active",on?"true":"false");
+        var vids=slideVideos(sl);
+        if(on){
+          Array.prototype.forEach.call(vids,function(v){hydrate(v);v.play().catch(function(){});});
+        }else{
+          Array.prototype.forEach.call(vids,function(v){v.pause();});
+        }
+      });
+      dots.forEach(function(d,di){d.setAttribute("aria-current",di===i?"true":"false");});
+      count.textContent=(i+1)+" / "+slides.length;
+      idx=i;
+    }
+    function go(i,manual){
+      activate((i+slides.length)%slides.length);
+      if(manual) restartTimer();
+    }
+    function restartTimer(){
+      if(timer) clearInterval(timer);
+      timer=setInterval(function(){go(idx+1,false);},delay);
+    }
+    prevBtn.addEventListener("click",function(){go(idx-1,true);});
+    nextBtn.addEventListener("click",function(){go(idx+1,true);});
+    car.addEventListener("mouseenter",function(){if(timer){clearInterval(timer);timer=null;}});
+    car.addEventListener("mouseleave",function(){restartTimer();});
+
+    activate(0);
+    if("IntersectionObserver" in window){
+      new IntersectionObserver(function(es){
+        es.forEach(function(e){
+          if(e.isIntersecting){restartTimer();} else if(timer){clearInterval(timer);timer=null;}
+        });
+      },{threshold:.15}).observe(car);
+    } else { restartTimer(); }
+  }
+  document.querySelectorAll(".carousel").forEach(initCarousel);
+
+  /* ---------- teaser player ---------- */
+  var teaserFig=document.getElementById("teaserFig"),
+      teaserVideo=document.getElementById("teaserVideo"),
+      teaserPlay=document.getElementById("teaserPlay"),
+      teaserSound=document.getElementById("teaserSound");
+  teaserVideo.dataset.src="assets/video/teaser.mp4";
+  var teaserStarted=false;
+  function teaserToggle(){
+    if(!teaserVideo.src) teaserVideo.src=teaserVideo.dataset.src;
+    if(teaserVideo.paused){ teaserVideo.play().catch(function(){}); teaserPlay.hidden=true; }
+    else { teaserVideo.pause(); teaserPlay.hidden=false; }
+  }
+  teaserFig.addEventListener("click",function(e){ if(e.target===teaserSound||teaserSound.contains(e.target))return; teaserToggle(); });
+  teaserPlay.addEventListener("click",function(e){ e.stopPropagation(); teaserToggle(); });
+  teaserSound.addEventListener("click",function(e){
+    e.stopPropagation();
+    teaserVideo.muted=!teaserVideo.muted;
+    teaserSound.setAttribute("aria-pressed",teaserVideo.muted?"false":"true");
+    teaserSound.setAttribute("aria-label",teaserVideo.muted?"Turn sound on":"Turn sound off");
+    teaserSound.querySelector(".ico-off").hidden=!teaserVideo.muted;
+    teaserSound.querySelector(".ico-on").hidden=teaserVideo.muted;
+  });
+  if("IntersectionObserver" in window){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){
+          if(!teaserVideo.src) teaserVideo.src=teaserVideo.dataset.src;
+          if(!teaserStarted){teaserStarted=true;teaserVideo.play().then(function(){teaserPlay.hidden=true;}).catch(function(){});}
+        } else { teaserVideo.pause(); }
+      });
+    },{threshold:.3}).observe(teaserFig);
   } else {
-    lazy.forEach(function(v){ hydrate(v); v.play().catch(function(){}); });
+    teaserVideo.src=teaserVideo.dataset.src;
   }
 
-  /* ---------- bars animate in ---------- */
-  var fills=document.querySelectorAll(".bfill");
-  function drawBars(){ fills.forEach(function(f){ f.style.width=f.dataset.w+"%"; }); }
-  if("IntersectionObserver" in window){
-    var bo=new IntersectionObserver(function(en){
-      if(en.some(function(e){return e.isIntersecting;})){ drawBars(); bo.disconnect(); }
-    },{threshold:0.3});
-    var bars=document.querySelector(".bars"); if(bars) bo.observe(bars);
-  } else { drawBars(); }
-
-  /* ---------- copy ---------- */
-  var cb=document.getElementById("copyBtn"), bib=document.getElementById("bib");
+  var cb=document.getElementById("copyBtn"),bib=document.getElementById("bib");
   cb.addEventListener("click",function(){
-    function ok(){ cb.textContent="Copied"; cb.classList.add("ok");
-      setTimeout(function(){cb.textContent="Copy";cb.classList.remove("ok");},1500); }
+    function ok(){cb.textContent="Copied";cb.classList.add("ok");
+      setTimeout(function(){cb.textContent="Copy";cb.classList.remove("ok");},1500);}
     if(navigator.clipboard&&navigator.clipboard.writeText){
       navigator.clipboard.writeText(bib.textContent).then(ok).catch(ok);
-    } else {
-      var ta=document.createElement("textarea"); ta.value=bib.textContent;
-      document.body.appendChild(ta); ta.select();
+    }else{
+      var ta=document.createElement("textarea");ta.value=bib.textContent;
+      document.body.appendChild(ta);ta.select();
       try{document.execCommand("copy");}catch(e){}
-      document.body.removeChild(ta); ok();
+      document.body.removeChild(ta);ok();
     }
   });
 })();
