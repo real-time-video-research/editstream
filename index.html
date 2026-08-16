@@ -855,14 +855,14 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
     <!-- ============ 04 Camera Pose Change ============ -->
     <div class="task-row">
       <div class="task-head"><span class="num">04</span><h3>Camera Pose Change</h3></div>
-      <p class="task-dek">ReShoot: an AI-generated source clip — from Sora 2 Pro or Kling v2.1 — reconstructed in 3D and replayed along a new camera trajectory. Same input, two different moves: a wide S-curve orbit that sways and pushes in, and a straight orbit around the subject.</p>
+      <p class="task-dek">ReShoot: an AI-generated source clip — from Sora 2 Pro or Kling v2.1 — reconstructed in 3D from the single input on the left. Both results on the right are EditStream — the same reconstruction replayed along two different camera trajectories: a wide S-curve orbit that sways and pushes in, and a straight orbit around the subject.</p>
       <div class="carousel" id="camCarousel">
         <div class="car-slides">
       <div class="c-slide" data-active="true" data-idx="0">
         <div class="car-label"><span class="scene">Shoreline dancer</span><span class="src-tag">Sora 2 Pro input</span></div>
         <div class="cmp3">
           <figure class="shot"><video muted playsinline aria-label="Shoreline dancer, original input" data-src="assets/video/cam3-shoreline-dancer-input.mp4" poster="assets/img/cam3-shoreline-dancer-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot"><video muted playsinline aria-label="Shoreline dancer, S-curve loop result" data-src="assets/video/cam3-shoreline-dancer-loop.mp4" poster="assets/img/cam3-shoreline-dancer-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Shoreline dancer, S-curve loop result" data-src="assets/video/cam3-shoreline-dancer-loop.mp4" poster="assets/img/cam3-shoreline-dancer-loop.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Loop (S-curve)</span></figcaption></figure>
           <figure class="shot ours"><video muted playsinline aria-label="Shoreline dancer, orbit result" data-src="assets/video/cam3-shoreline-dancer-orbit.mp4" poster="assets/img/cam3-shoreline-dancer-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
@@ -870,7 +870,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
         <div class="car-label"><span class="scene">Rooftop night market</span><span class="src-tag">Sora 2 Pro input</span></div>
         <div class="cmp3">
           <figure class="shot"><video muted playsinline aria-label="Rooftop night market, original input" data-src="assets/video/cam3-rooftop-market-input.mp4" poster="assets/img/cam3-rooftop-market-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot"><video muted playsinline aria-label="Rooftop night market, S-curve loop result" data-src="assets/video/cam3-rooftop-market-loop.mp4" poster="assets/img/cam3-rooftop-market-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Rooftop night market, S-curve loop result" data-src="assets/video/cam3-rooftop-market-loop.mp4" poster="assets/img/cam3-rooftop-market-loop.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Loop (S-curve)</span></figcaption></figure>
           <figure class="shot ours"><video muted playsinline aria-label="Rooftop night market, orbit result" data-src="assets/video/cam3-rooftop-market-orbit.mp4" poster="assets/img/cam3-rooftop-market-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
@@ -878,7 +878,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
         <div class="car-label"><span class="scene">Coffee pour</span><span class="src-tag">Kling v2.1 Master input</span></div>
         <div class="cmp3">
           <figure class="shot"><video muted playsinline aria-label="Coffee pour, original input" data-src="assets/video/cam3-coffee-pour-input.mp4" poster="assets/img/cam3-coffee-pour-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot"><video muted playsinline aria-label="Coffee pour, S-curve loop result" data-src="assets/video/cam3-coffee-pour-loop.mp4" poster="assets/img/cam3-coffee-pour-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Coffee pour, S-curve loop result" data-src="assets/video/cam3-coffee-pour-loop.mp4" poster="assets/img/cam3-coffee-pour-loop.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Loop (S-curve)</span></figcaption></figure>
           <figure class="shot ours"><video muted playsinline aria-label="Coffee pour, orbit result" data-src="assets/video/cam3-coffee-pour-orbit.mp4" poster="assets/img/cam3-coffee-pour-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
@@ -886,7 +886,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
         <div class="car-label"><span class="scene">Data analyst</span><span class="src-tag">Kling v2.1 Master input</span></div>
         <div class="cmp3">
           <figure class="shot"><video muted playsinline aria-label="Data analyst, original input" data-src="assets/video/cam3-data-analyst-input.mp4" poster="assets/img/cam3-data-analyst-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot"><video muted playsinline aria-label="Data analyst, S-curve loop result" data-src="assets/video/cam3-data-analyst-loop.mp4" poster="assets/img/cam3-data-analyst-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Data analyst, S-curve loop result" data-src="assets/video/cam3-data-analyst-loop.mp4" poster="assets/img/cam3-data-analyst-loop.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Loop (S-curve)</span></figcaption></figure>
           <figure class="shot ours"><video muted playsinline aria-label="Data analyst, orbit result" data-src="assets/video/cam3-data-analyst-orbit.mp4" poster="assets/img/cam3-data-analyst-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
@@ -894,7 +894,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
         <div class="car-label"><span class="scene">Kitchen plating</span><span class="src-tag">Kling v2.1 Master input</span></div>
         <div class="cmp3">
           <figure class="shot"><video muted playsinline aria-label="Kitchen plating, original input" data-src="assets/video/cam3-kitchen-plating-input.mp4" poster="assets/img/cam3-kitchen-plating-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot"><video muted playsinline aria-label="Kitchen plating, S-curve loop result" data-src="assets/video/cam3-kitchen-plating-loop.mp4" poster="assets/img/cam3-kitchen-plating-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Kitchen plating, S-curve loop result" data-src="assets/video/cam3-kitchen-plating-loop.mp4" poster="assets/img/cam3-kitchen-plating-loop.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Loop (S-curve)</span></figcaption></figure>
           <figure class="shot ours"><video muted playsinline aria-label="Kitchen plating, orbit result" data-src="assets/video/cam3-kitchen-plating-orbit.mp4" poster="assets/img/cam3-kitchen-plating-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
@@ -902,23 +902,15 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
         <div class="car-label"><span class="scene">Coral reef</span><span class="src-tag">Kling v2.1 Master input</span></div>
         <div class="cmp3">
           <figure class="shot"><video muted playsinline aria-label="Coral reef, original input" data-src="assets/video/cam3-coral-reef-input.mp4" poster="assets/img/cam3-coral-reef-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot"><video muted playsinline aria-label="Coral reef, S-curve loop result" data-src="assets/video/cam3-coral-reef-loop.mp4" poster="assets/img/cam3-coral-reef-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Coral reef, S-curve loop result" data-src="assets/video/cam3-coral-reef-loop.mp4" poster="assets/img/cam3-coral-reef-loop.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Loop (S-curve)</span></figcaption></figure>
           <figure class="shot ours"><video muted playsinline aria-label="Coral reef, orbit result" data-src="assets/video/cam3-coral-reef-orbit.mp4" poster="assets/img/cam3-coral-reef-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
       <div class="c-slide" data-idx="6">
-        <div class="car-label"><span class="scene">Storm dragon</span><span class="src-tag">Kling v2.1 Master input</span></div>
-        <div class="cmp3">
-          <figure class="shot"><video muted playsinline aria-label="Storm dragon, original input" data-src="assets/video/cam3-storm-dragon-input.mp4" poster="assets/img/cam3-storm-dragon-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot"><video muted playsinline aria-label="Storm dragon, S-curve loop result" data-src="assets/video/cam3-storm-dragon-loop.mp4" poster="assets/img/cam3-storm-dragon-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
-          <figure class="shot ours"><video muted playsinline aria-label="Storm dragon, orbit result" data-src="assets/video/cam3-storm-dragon-orbit.mp4" poster="assets/img/cam3-storm-dragon-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
-        </div>
-      </div>
-      <div class="c-slide" data-idx="7">
         <div class="car-label"><span class="scene">Raccoon band</span><span class="src-tag">Kling v2.1 Master input</span></div>
         <div class="cmp3">
           <figure class="shot"><video muted playsinline aria-label="Raccoon band, original input" data-src="assets/video/cam3-raccoon-band-input.mp4" poster="assets/img/cam3-raccoon-band-input.jpg"></video><figcaption><span class="role">Input</span></figcaption></figure>
-          <figure class="shot"><video muted playsinline aria-label="Raccoon band, S-curve loop result" data-src="assets/video/cam3-raccoon-band-loop.mp4" poster="assets/img/cam3-raccoon-band-loop.jpg"></video><figcaption><span class="role">Loop (S-curve)</span></figcaption></figure>
+          <figure class="shot ours"><video muted playsinline aria-label="Raccoon band, S-curve loop result" data-src="assets/video/cam3-raccoon-band-loop.mp4" poster="assets/img/cam3-raccoon-band-loop.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Loop (S-curve)</span></figcaption></figure>
           <figure class="shot ours"><video muted playsinline aria-label="Raccoon band, orbit result" data-src="assets/video/cam3-raccoon-band-orbit.mp4" poster="assets/img/cam3-raccoon-band-orbit.jpg"></video><figcaption><span class="role"><span class="tag-ours">EditStream</span> — Orbit</span></figcaption></figure>
         </div>
       </div>
