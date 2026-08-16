@@ -83,9 +83,9 @@ a{color:inherit;}
   display:flex;align-items:center;justify-content:space-between;gap:20px;}
 .logo{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:700;letter-spacing:-.02em;color:var(--dink);}
 .adobe-mark{flex:none;display:block;width:auto;}
-.nav .adobe-mark{height:15px;}
+.nav .adobe-mark{height:12px;}
 .h-title{display:flex;align-items:center;gap:.14em;}
-.h-title .adobe-mark{height:clamp(28px,4.6vw,54px);}
+.h-title .adobe-mark{height:clamp(20px,3.2vw,38px);}
 .nav ul{display:flex;gap:26px;}
 .nav ul a{font-size:13px;color:var(--dink-2);text-decoration:none;transition:color .15s;}
 .nav ul a:hover{color:var(--dink);}
@@ -102,10 +102,11 @@ a{color:inherit;}
 .h-sub{margin-top:24px;font-size:clamp(19px,2.3vw,26px);line-height:1.35;color:var(--dink);
   max-width:19em;font-weight:400;letter-spacing:-.018em;}
 .h-venue{margin-bottom:26px;}
-.authors{margin-top:38px;font-size:18px;line-height:1.75;color:var(--dink-2);max-width:60em;}
+.authors{margin-top:38px;font-size:22px;line-height:1.7;color:var(--dink-2);max-width:78em;}
 .authors b{color:var(--dink);font-weight:600;white-space:nowrap;}
 .authors sup{font-size:9.5px;color:var(--dink-3);font-weight:400;}
-.affil{margin-top:10px;font-size:12px;color:var(--dink-3);line-height:1.75;}
+.affil{display:block;margin-top:12px;font-size:15px;color:var(--dink-3);line-height:1.6;white-space:nowrap;}
+@media (max-width:900px){.affil{white-space:normal;}}
 
 .cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:36px;}
 .btn{
@@ -358,7 +359,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
       <span class="btn btn-ghost" aria-disabled="true">Data &amp; Model <span class="soon">soon</span></span>
     </div>
     <div class="specs">
-      <div><span class="v">6<em>tasks</em></span><p>Generation, transformation and editing on a single backbone</p></div>
+      <div><span class="v">5+<em>tasks</em></span><p>Generation, transformation and editing on a single backbone</p></div>
       <div><span class="v">4<em>steps</em></span><p>Denoising steps at inference, guidance-free</p></div>
       <div><span class="v">16<em>fps</em></span><p>720p streaming throughput on a single GPU</p></div>
       <div><span class="v">14<em>×</em></span><p>Faster than the multi-step teacher it is distilled from</p></div>
