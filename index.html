@@ -105,7 +105,8 @@ a{color:inherit;}
 .hero-in{position:relative;}
 .h-title{font-size:clamp(52px,9vw,112px);line-height:.94;letter-spacing:.02em;}
 .h-sub{margin-top:24px;font-size:28px;line-height:1.35;color:var(--dink);
-  max-width:900px;text-wrap:balance;font-weight:400;letter-spacing:-.018em;}
+  white-space:nowrap;font-weight:400;letter-spacing:-.018em;}
+@media (max-width:1100px){.h-sub{white-space:normal;font-size:clamp(16px,2.6vw,24px);}}
 .h-venue{margin-bottom:26px;}
 .authors{margin-top:38px;font-size:20px;line-height:1.7;color:var(--dink-2);max-width:78em;}
 .authors b{color:var(--dink);font-weight:600;white-space:nowrap;}
