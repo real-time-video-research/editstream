@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="EditStream: a unified autoregressive framework for interactive video generation and editing. Six tasks on one DiT backbone, distilled into a 4-step causal streaming model.">
 <meta property="og:title" content="EditStream">
-<meta property="og:description" content="Generate, transform and edit video in one model, as it streams.">
+<meta property="og:description" content="A Unified Autoregressive Framework for Interactive Video Generation and Editing">
 <meta property="og:type" content="website">
 <meta property="og:image" content="assets/img/teaser-poster.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -105,8 +105,7 @@ a{color:inherit;}
 .hero-in{position:relative;}
 .h-title{font-size:clamp(52px,9vw,112px);line-height:.94;letter-spacing:.02em;}
 .h-sub{margin-top:24px;font-size:28px;line-height:1.35;color:var(--dink);
-  white-space:nowrap;font-weight:400;letter-spacing:-.018em;}
-@media (max-width:760px){.h-sub{white-space:normal;}}
+  max-width:900px;text-wrap:balance;font-weight:400;letter-spacing:-.018em;}
 .h-venue{margin-bottom:26px;}
 .authors{margin-top:38px;font-size:20px;line-height:1.7;color:var(--dink-2);max-width:78em;}
 .authors b{color:var(--dink);font-weight:600;white-space:nowrap;}
@@ -360,7 +359,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
   <div class="wide hero-in">
     <p class="kicker h-venue"><span class="mark">Adobe Research</span> &nbsp;·&nbsp; University of Rochester &nbsp;·&nbsp; Technical Report</p>
     <h1 class="h-title">EditStream<span class="hero-marks"><img class="adobe-mark" src="assets/img/adobe-logo.png" alt="Adobe"><img class="uni-mark" src="assets/img/rochester-logo.png" alt="University of Rochester"></span></h1>
-    <p class="h-sub">Generate, transform and edit video — in one model, as it streams.</p>
+    <p class="h-sub">A Unified Autoregressive Framework for Interactive Video Generation and Editing</p>
     <p class="authors">
       <b>Yuqian Zhou</b><sup>1,*,†</sup>&ensp;<b>Zhenghong Zhou</b><sup>1,2,*,‡</sup>&ensp;<b>Zongze Wu</b><sup>1</sup>&ensp;<b>Cameron Smith</b><sup>1</sup>&ensp;<b>Richard Zhang</b><sup>1</sup>&ensp;<b>Jiebo Luo</b><sup>2</sup>&ensp;<b>Eli Shechtman</b><sup>1</sup>&ensp;<b>Zhe Lin</b><sup>1</sup>
       <span class="affil">1&ensp;Adobe Research&emsp;2&ensp;University of Rochester&emsp;*&ensp;first authors in random order&emsp;‡&ensp;work done during an internship at Adobe Research&emsp;†&ensp;project lead</span>
