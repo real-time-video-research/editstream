@@ -83,12 +83,14 @@ a{color:inherit;}
 .nav{position:sticky;top:0;z-index:80;background:rgba(10,10,12,.82);backdrop-filter:blur(14px);
   border-bottom:1px solid var(--dline);}
 .nav-in{max-width:var(--wide);margin-inline:auto;padding:0 32px;height:56px;
-  display:flex;align-items:center;justify-content:space-between;gap:20px;}
+  display:flex;align-items:center;justify-content:flex-end;gap:20px;}
 .logo{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:700;letter-spacing:.01em;color:var(--dink);}
 .adobe-mark{flex:none;display:block;width:auto;}
 .nav .adobe-mark{height:12px;}
 .h-title{display:flex;align-items:center;justify-content:space-between;width:100%;gap:24px;}
+.hero-marks{display:flex;align-items:center;gap:22px;flex:none;}
 .h-title .adobe-mark{height:clamp(20px,3.2vw,38px);}
+.h-title .uni-mark{height:clamp(20px,3.2vw,38px);}
 .nav ul{display:flex;gap:26px;}
 .nav ul a{font-size:13px;color:var(--dink-2);text-decoration:none;transition:color .15s;}
 .nav ul a:hover{color:var(--dink);}
@@ -345,7 +347,6 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
 
 <nav class="nav">
   <div class="nav-in">
-    <span class="logo"><img class="adobe-mark" src="assets/img/adobe-logo.png" alt="Adobe">EditStream</span>
     <ul>
       <li><a href="#abstract">Abstract</a></li>
       <li><a href="#method">Method</a></li>
@@ -358,7 +359,7 @@ footer{background:var(--black);color:var(--dink-3);padding:40px 0 56px;}
 <header class="dark hero">
   <div class="wide hero-in">
     <p class="kicker h-venue"><span class="mark">Adobe Research</span> &nbsp;·&nbsp; University of Rochester &nbsp;·&nbsp; Technical Report</p>
-    <h1 class="h-title">EditStream<img class="adobe-mark" src="assets/img/adobe-logo.png" alt="Adobe"></h1>
+    <h1 class="h-title">EditStream<span class="hero-marks"><img class="adobe-mark" src="assets/img/adobe-logo.png" alt="Adobe"><img class="uni-mark" src="assets/img/rochester-logo.png" alt="University of Rochester"></span></h1>
     <p class="h-sub">Generate, transform and edit video — in one model, as it streams.</p>
     <p class="authors">
       <b>Yuqian Zhou</b><sup>1,*,†</sup>&ensp;<b>Zhenghong Zhou</b><sup>1,2,*,‡</sup>&ensp;<b>Zongze Wu</b><sup>1</sup>&ensp;<b>Cameron Smith</b><sup>1</sup>&ensp;<b>Richard Zhang</b><sup>1</sup>&ensp;<b>Jiebo Luo</b><sup>2</sup>&ensp;<b>Eli Shechtman</b><sup>1</sup>&ensp;<b>Zhe Lin</b><sup>1</sup>
